@@ -2,7 +2,7 @@
 :root{
   --bg:#faf6f1; --surface:#fff; --ink:#1c1917; --muted:#78716c; --line:#e9e2d8;
   --accent:#c2410c; --accent-soft:#ffedd5; --accent-ink:#9a3412;
-  --music:#1d4ed8; --comedy:#b45309; --outdoor:#15803d; --food:#be123c;
+  --music:#1d4ed8; --comedy:#b45309; --outdoor:#15803d; --food:#be123c; --fest:#7c3aed;
   --radius:16px;
 }
 html{-webkit-text-size-adjust:100%}
@@ -50,6 +50,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .card{background:var(--surface);border-radius:var(--radius);padding:15px 16px 15px 18px;margin-bottom:11px;box-shadow:0 2px 8px rgba(60,30,10,.07);cursor:pointer;border-left:5px solid var(--line);position:relative}
 .card.b-music{border-left-color:var(--music)} .card.b-comedy{border-left-color:var(--comedy)}
 .card.b-outdoor{border-left-color:var(--outdoor)} .card.b-food{border-left-color:var(--food)}
+.card.b-fest{border-left-color:var(--fest)}
 .chead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .card h3{font-size:1.04rem;letter-spacing:-.2px;line-height:1.3}
 .datebadge{flex:0 0 auto;background:var(--accent-soft);color:var(--accent-ink);font-weight:800;font-size:.78rem;border-radius:10px;padding:5px 9px;text-align:center;line-height:1.25;min-width:52px}

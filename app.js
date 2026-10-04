@@ -1,7 +1,13 @@
 let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all',sort:'date',maxDist:null,only:''}, map=null, markers=[];
 const MILANO={lat:45.4642,lon:9.19};
-const CATL={music:'Musica',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
+const CATL={music:'Musica',fest:'Festival',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
 const INAUG_RE=/(inaugur|opening|vernissage|apertura|open day)/i;
+const FEST_RE=/fest(?!a\b|e\b)/i; // festival veri, non "festa/feste" di paese
+function isFest(e){return FEST_RE.test(((e.kind||'')+' '+(e.title||'')))}
+function catOf(e){return isFest(e)?'fest':e.category}
+function matchCat(e){const c=FILTERS.cat;if(c==='all')return true;
+  if(c==='fest')return isFest(e);
+  return e.category===c&&!isFest(e)}
 function matchOnly(e){if(!FILTERS.only)return true;
   if(FILTERS.only==='party')return (e.kind||'').toLowerCase().includes('party');
   if(FILTERS.only==='inaug')return INAUG_RE.test((e.kind||'')+' '+(e.title||'')+' '+(e.details||''));
@@ -31,7 +37,7 @@ function matchPeriod(e){const t=new Date();t.setHours(12,0,0,0);const p=FILTERS.
 function filtered(){const q=FILTERS.q.toLowerCase();
   return EVENTS.filter(e=>{
     if(!matchPeriod(e))return false;
-    if(FILTERS.cat!=='all'&&e.category!==FILTERS.cat)return false;
+    if(FILTERS.cat!=='all'&&!matchCat(e))return false;
     if(FILTERS.price==='free'&&e.priceType!=='free')return false;
     if(FILTERS.price==='paid'&&e.priceType!=='paid')return false;
     if(FILTERS.zone!=='all'&&e.area!==FILTERS.zone)return false;
@@ -55,10 +61,10 @@ function dateBadge(e){const d=parseD(e.startDate);if(!d)return'';
 function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   const og=ongoing(e,t)?'<span class="ongoing">in corso</span>':'';
   const dt=distTxt(e);
-  return `<article class="card b-${e.category}" data-id="${e.id}">
+  return `<article class="card b-${catOf(e)}" data-id="${e.id}">
     <div class="chead"><h3>${esc(e.title)}${og}</h3>${dateBadge(e)}</div>
     <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</div>
-    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[e.category]||esc(e.category)}</span></div>
+    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span></div>
     <div class="more">
       ${e.dateLabel?`<p><b>${esc(e.dateLabel)}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>`:''}
       ${e.details?`<p>${esc(e.details)}</p>`:''}
@@ -83,7 +89,7 @@ function updateFCount(){let n=0;
   el.classList.toggle('hidden',!n);el.textContent=n||''}
 function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];
   const pts=list.filter(e=>e.latitude&&e.longitude);
-  const colors={music:'#1d4ed8',comedy:'#b45309',outdoor:'#15803d',food:'#be123c'};
+  const colors={music:'#1d4ed8',fest:'#7c3aed',comedy:'#b45309',outdoor:'#15803d',food:'#be123c'};
   // raggruppa per coordinate (4 decimali): niente più pin sovrapposti invisibili
   const groups={};
   pts.forEach(e=>{const k=e.latitude.toFixed(4)+','+e.longitude.toFixed(4);
@@ -91,7 +97,7 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
   const gkeys=Object.keys(groups);
   document.getElementById('mapcount').textContent=gkeys.length+' luoghi · '+pts.length+' eventi';
   gkeys.forEach(k=>{const evs=groups[k];
-    const catCount={};evs.forEach(e=>catCount[e.category]=(catCount[e.category]||0)+1);
+    const catCount={};evs.forEach(e=>{const c=catOf(e);catCount[c]=(catCount[c]||0)+1});
     const domCat=Object.keys(catCount).sort((a,b)=>catCount[b]-catCount[a])[0];
     const m=L.circleMarker([evs[0].latitude,evs[0].longitude],
       {radius:evs.length>1?13:9,color:colors[domCat]||'#444',fillOpacity:.92,weight:2});
@@ -104,7 +110,7 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   const dt=distTxt(e);
   document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
-    <span class="catpill">${CATL[e.category]||esc(e.category)}</span>
+    <span class="catpill">${CATL[catOf(e)]}</span>
     <p class="meta"><b>${esc(e.dateLabel||'')}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>
     <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
