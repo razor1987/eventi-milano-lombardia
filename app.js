@@ -69,8 +69,10 @@ function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
     ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
     ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}`;
   document.getElementById('modal').classList.remove('hidden')}
-function initMap(){map=L.map('map').setView([45.46,9.19],9);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map)}
+function initMap(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<div class="empty">Mappa non caricata: controlla la connessione e ricarica la pagina.</div>';return false}
+  map=L.map('map',{tap:true}).setView([45.46,9.19],9);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+  return true}
 function bindFilters(){document.querySelectorAll('.fgroup[id]').forEach(g=>{
   g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
     g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
@@ -81,7 +83,9 @@ function bindFilters(){document.querySelectorAll('.fgroup[id]').forEach(g=>{
     document.getElementById('vList').classList.add('on');document.getElementById('vMap').classList.remove('on')};
   document.getElementById('vMap').onclick=()=>{mv.classList.remove('hidden');lv.classList.add('hidden');
     document.getElementById('vMap').classList.add('on');document.getElementById('vList').classList.remove('on');
-    if(!map)initMap();setTimeout(()=>{map.invalidateSize();renderMap(filtered())},80)};
+    if(!map&&!initMap())return;
+    const fix=()=>{if(!map)return;map.invalidateSize();renderMap(filtered())};
+    requestAnimationFrame(()=>requestAnimationFrame(fix));setTimeout(fix,400)};
   document.getElementById('mclose').onclick=()=>document.getElementById('modal').classList.add('hidden');
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.target.classList.add('hidden')})}
 fetch('data/events.json').then(r=>r.json()).then(d=>{EVENTS=d.events;
