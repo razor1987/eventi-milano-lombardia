@@ -2,22 +2,44 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Eventi a Milano e in Lombardia</title>
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header>
+<header class="hero">
   <div class="wrap">
-    <h1>Eventi a Milano e in Lombardia</h1>
+    <p class="kicker">Milano · Lombardia</p>
+    <h1>Cosa facciamo?</h1>
     <p class="sub"><span id="count"></span> · aggiornato il <span id="updated"></span></p>
   </div>
 </header>
 
+<div class="stickybar">
+  <div class="wrap">
+    <div class="searchrow">
+      <svg class="sicon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Cerca concerto, sagra, locale, città…" autocomplete="off">
+      <button id="qclear" class="hidden" aria-label="Cancella ricerca">✕</button>
+    </div>
+    <div class="segview" role="tablist">
+      <button id="vList" class="on" role="tab">☰ Lista</button>
+      <button id="vMap" role="tab">📍 Mappa</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
-  <section class="filters">
-    <input type="search" id="q" placeholder="Cerca evento, artista, locale, città…">
+  <div class="chips" id="chips">
+    <button data-chip="today">⚡ Stasera</button>
+    <button data-chip="weekend">🎉 Weekend</button>
+    <button data-chip="free">💸 Gratis</button>
+    <button data-chip="near">📍 Vicino a me</button>
+  </div>
+
+  <button id="ftoggle" class="ftoggle">Filtri <span id="fcount" class="hidden"></span><span class="chev">▾</span></button>
+  <section class="filters hidden" id="filters">
     <div class="frow">
       <div class="fgroup" id="fPeriod">
         <span class="flabel">Periodo</span>
@@ -57,16 +79,14 @@
         <input type="range" id="maxDist" min="5" max="150" step="5" value="150">
         <span class="dlabel" id="maxDistLabel">Qualsiasi</span>
       </div>
-      <div class="fgroup">
-        <span class="flabel">Vista</span>
-        <button id="vList" class="on">Lista</button>
-        <button id="vMap">Mappa</button>
-      </div>
     </div>
   </section>
 
   <main id="listView"><div id="list"></div></main>
-  <main id="mapView" class="hidden"><p class="maphint">Tocca un pin per vedere l'anteprima dell'evento.</p><div id="map"></div></main>
+  <main id="mapView" class="hidden">
+    <p class="maphint">Tocca un pin per vedere l'anteprima · <span id="mapcount"></span></p>
+    <div id="map"></div>
+  </main>
 </div>
 
 <div id="modal" class="hidden"><div class="mbox"><button id="mclose">✕</button><div id="mbody"></div></div></div>
