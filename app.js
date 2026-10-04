@@ -1,6 +1,11 @@
-let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all',sort:'date',maxDist:null}, map=null, markers=[];
+let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all',sort:'date',maxDist:null,only:''}, map=null, markers=[];
 const MILANO={lat:45.4642,lon:9.19};
 const CATL={music:'Musica',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
+const INAUG_RE=/(inaugur|opening|vernissage|apertura|open day)/i;
+function matchOnly(e){if(!FILTERS.only)return true;
+  if(FILTERS.only==='party')return (e.kind||'').toLowerCase().includes('party');
+  if(FILTERS.only==='inaug')return INAUG_RE.test((e.kind||'')+' '+(e.title||'')+' '+(e.details||''));
+  return true}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dstr=d=>d.toISOString().slice(0,10);
 const MONTHS=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
@@ -30,6 +35,7 @@ function filtered(){const q=FILTERS.q.toLowerCase();
     if(FILTERS.price==='free'&&e.priceType!=='free')return false;
     if(FILTERS.price==='paid'&&e.priceType!=='paid')return false;
     if(FILTERS.zone!=='all'&&e.area!==FILTERS.zone)return false;
+    if(!matchOnly(e))return false;
     if(FILTERS.maxDist!=null){const d=distKm(e);if(d==null||d>FILTERS.maxDist)return false}
     if(q){const h=(e.title+' '+(e.kind||'')+' '+(e.venue||'')+' '+e.city+' '+(e.details||'')).toLowerCase();if(!h.includes(q))return false}
     return true;
@@ -63,21 +69,36 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
     </div></article>`}
 function render(){const list=filtered();
   document.getElementById('count').textContent=list.length+' eventi';
-  document.getElementById('mapcount').textContent=list.filter(e=>e.latitude&&e.longitude).length+' pin';
+  const pts=list.filter(e=>e.latitude&&e.longitude);
+  const places=new Set(pts.map(e=>e.latitude.toFixed(4)+','+e.longitude.toFixed(4))).size;
+  document.getElementById('mapcount').textContent=places+' luoghi · '+pts.length+' eventi';
   document.getElementById('list').innerHTML=list.length?list.map(cardHTML).join(''):'<div class="empty">Nessun evento con questi filtri.<br>Prova ad allargare la distanza o il periodo.</div>';
   document.querySelectorAll('.card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
   updateFCount();renderMap(list)}
 function updateFCount(){let n=0;
   if(FILTERS.period!=='all')n++;if(FILTERS.cat!=='all')n++;if(FILTERS.price!=='all')n++;
   if(FILTERS.zone!=='all')n++;if(FILTERS.sort!=='date')n++;if(FILTERS.maxDist!=null)n++;
+  if(FILTERS.only)n++;
   const el=document.getElementById('fcount');
   el.classList.toggle('hidden',!n);el.textContent=n||''}
 function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];
   const pts=list.filter(e=>e.latitude&&e.longitude);
   const colors={music:'#1d4ed8',comedy:'#b45309',outdoor:'#15803d',food:'#be123c'};
-  pts.forEach(e=>{const m=L.circleMarker([e.latitude,e.longitude],{radius:9,color:colors[e.category]||'#444',fillOpacity:.92,weight:2});
-    const dt=distTxt(e);
-    m.bindPopup(`<b>${esc(e.title)}</b><br>${esc(e.dateLabel||'')}<br>${esc(e.venue||e.city||'')}${dt?`<br><b>${esc(dt)} da Milano</b>`:''}<br><button class="popbtn" onclick="openModal(${e.id})">Dettagli</button>`);
+  // raggruppa per coordinate (4 decimali): niente più pin sovrapposti invisibili
+  const groups={};
+  pts.forEach(e=>{const k=e.latitude.toFixed(4)+','+e.longitude.toFixed(4);
+    (groups[k]=groups[k]||[]).push(e)});
+  const gkeys=Object.keys(groups);
+  document.getElementById('mapcount').textContent=gkeys.length+' luoghi · '+pts.length+' eventi';
+  gkeys.forEach(k=>{const evs=groups[k];
+    const catCount={};evs.forEach(e=>catCount[e.category]=(catCount[e.category]||0)+1);
+    const domCat=Object.keys(catCount).sort((a,b)=>catCount[b]-catCount[a])[0];
+    const m=L.circleMarker([evs[0].latitude,evs[0].longitude],
+      {radius:evs.length>1?13:9,color:colors[domCat]||'#444',fillOpacity:.92,weight:2});
+    if(evs.length>1)m.bindTooltip(String(evs.length),{permanent:true,direction:'center',className:'pcount'});
+    const items=evs.map(e=>{const dt=distTxt(e);
+      return `<button class="popitem" onclick="openModal(${e.id})"><b>${esc(e.title)}</b><span>${esc(e.dateLabel||'')}${dt?' · '+esc(dt)+' da Milano':''}</span></button>`}).join('');
+    m.bindPopup(`<div class="poplist">${items}</div>`);
     markers.push(m);m.addTo(map)});
   if(pts.length){try{map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.12))}catch(_){}}}
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
@@ -101,6 +122,8 @@ function syncChips(){document.querySelectorAll('#chips button').forEach(b=>{
   if(k==='today')on=FILTERS.period==='today';
   if(k==='weekend')on=FILTERS.period==='weekend';
   if(k==='free')on=FILTERS.price==='free';
+  if(k==='party')on=FILTERS.only==='party';
+  if(k==='inaug')on=FILTERS.only==='inaug';
   if(k==='near')on=FILTERS.maxDist===20&&FILTERS.sort==='dist';
   b.classList.toggle('on',on)})}
 function bindFilters(){
@@ -119,6 +142,8 @@ function bindFilters(){
     if(k==='today'){FILTERS.period=FILTERS.period==='today'?'all':'today';setGroup('fPeriod',FILTERS.period)}
     if(k==='weekend'){FILTERS.period=FILTERS.period==='weekend'?'all':'weekend';setGroup('fPeriod',FILTERS.period)}
     if(k==='free'){FILTERS.price=FILTERS.price==='free'?'all':'free';setGroup('fPrice',FILTERS.price)}
+    if(k==='party'){FILTERS.only=FILTERS.only==='party'?'':'party'}
+    if(k==='inaug'){FILTERS.only=FILTERS.only==='inaug'?'':'inaug'}
     if(k==='near'){const on=!(FILTERS.maxDist===20&&FILTERS.sort==='dist');
       FILTERS.maxDist=on?20:null;FILTERS.sort=on?'dist':'date';
       md.value=on?20:150;mdl.textContent=on?'entro 20 km':'Qualsiasi';
