@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eventi a Milano e in Lombardia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Eventi a Milano e in Lombardia</h1>
+    <p class="sub"><span id="count"></span> · aggiornato il <span id="updated"></span></p>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="filters">
+    <input type="search" id="q" placeholder="Cerca evento, artista, locale, città…">
+    <div class="frow">
+      <div class="fgroup" id="fPeriod">
+        <span class="flabel">Periodo</span>
+        <button data-v="all" class="on">Tutti</button>
+        <button data-v="today">Oggi</button>
+        <button data-v="weekend">Weekend</button>
+        <button data-v="d7">7 giorni</button>
+        <button data-v="d30">30 giorni</button>
+      </div>
+      <div class="fgroup" id="fCat">
+        <span class="flabel">Categoria</span>
+        <button data-v="all" class="on">Tutte</button>
+        <button data-v="music">Musica</button>
+        <button data-v="comedy">Stand-up</button>
+        <button data-v="outdoor">All'aperto</button>
+        <button data-v="food">Sagre &amp; Food</button>
+      </div>
+      <div class="fgroup" id="fPrice">
+        <span class="flabel">Prezzo</span>
+        <button data-v="all" class="on">Tutti</button>
+        <button data-v="free">Gratis</button>
+        <button data-v="paid">A pagamento</button>
+      </div>
+      <div class="fgroup" id="fZone">
+        <span class="flabel">Zona</span>
+        <button data-v="all" class="on">Tutte</button>
+        <button data-v="milano">Milano</button>
+        <button data-v="lombardia">Lombardia</button>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Vista</span>
+        <button id="vList" class="on">Lista</button>
+        <button id="vMap">Mappa</button>
+      </div>
+    </div>
+  </section>
+
+  <main id="listView"><div id="list"></div></main>
+  <main id="mapView" class="hidden"><div id="map"></div></main>
+</div>
+
+<div id="modal" class="hidden"><div class="mbox"><button id="mclose">✕</button><div id="mbody"></div></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

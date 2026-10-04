@@ -1,0 +1,37 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f6f5f2;color:#1d1d1f;line-height:1.45}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header{background:#111;color:#fff;padding:28px 0 20px;margin-bottom:18px}
+header h1{font-size:1.7rem;letter-spacing:-.5px}
+header .sub{color:#bbb;margin-top:6px;font-size:.9rem}
+.filters{background:#fff;border-radius:14px;padding:14px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+#q{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:1rem;margin-bottom:10px}
+.frow{display:flex;flex-wrap:wrap;gap:10px 18px}
+.fgroup{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.flabel{font-size:.78rem;color:#777;text-transform:uppercase;letter-spacing:.4px;margin-right:2px}
+.fgroup button{border:1px solid #ddd;background:#fafafa;border-radius:999px;padding:6px 12px;font-size:.85rem;cursor:pointer}
+.fgroup button.on{background:#111;color:#fff;border-color:#111}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer}
+.card .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.card h3{font-size:1.05rem}
+.badge{font-size:.72rem;font-weight:600;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.b-music{background:#e8f0fe;color:#1a56db}.b-comedy{background:#fdeecd;color:#9a6200}
+.b-outdoor{background:#e6f6ec;color:#157f3d}.b-food{background:#fdeef0;color:#b4232f}
+.card .meta{color:#555;font-size:.88rem;margin-top:4px}
+.card .price{font-weight:700;margin-top:6px;font-size:.92rem}
+.price.free{color:#157f3d}.price.paid{color:#1d1d1f}.price.unknown{color:#888;font-weight:400}
+.card .more{display:none;margin-top:8px;border-top:1px dashed #e3e3e3;padding-top:8px;font-size:.9rem;color:#333}
+.card.open .more{display:block}
+.card .src{margin-top:8px;font-size:.82rem}
+.card .src a{color:#1a56db;margin-right:10px}
+.card .cav{margin-top:6px;font-size:.82rem;color:#9a6200}
+#mapView #map{height:70vh;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.hidden{display:none!important}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.mbox{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:22px;position:relative}
+#mclose{position:absolute;top:10px;right:12px;border:none;background:none;font-size:1.2rem;cursor:pointer}
+.mbox h2{font-size:1.3rem;margin-bottom:6px;padding-right:30px}
+.mbox .meta{color:#555;font-size:.9rem;margin:4px 0}
+.mbox p{margin:8px 0}
+.empty{text-align:center;color:#777;padding:40px 0}
+@media(max-width:640px){header h1{font-size:1.35rem}.frow{gap:8px 12px}}
