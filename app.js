@@ -1,4 +1,11 @@
-let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all'}, map=null, markers=[];
+let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all',sort:'date',maxDist:null}, map=null, markers=[];
+const MILANO={lat:45.4642,lon:9.19};
+function distKm(e){if(!e.latitude||!e.longitude)return null;
+  const R=6371,dLa=(e.latitude-MILANO.lat)*Math.PI/180,dLo=(e.longitude-MILANO.lon)*Math.PI/180;
+  const a=Math.sin(dLa/2)**2+Math.cos(MILANO.lat*Math.PI/180)*Math.cos(e.latitude*Math.PI/180)*Math.sin(dLo/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function distSuffix(e){const d=distKm(e);if(d==null)return'';
+  return ' · '+(d<1?'meno di 1 km':Math.round(d)+' km')+' da Milano'}
 const CATL={music:'Musica',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dstr=d=>d.toISOString().slice(0,10);
@@ -23,9 +30,12 @@ function filtered(){const q=FILTERS.q.toLowerCase();
     if(FILTERS.price==='free'&&e.priceType!=='free')return false;
     if(FILTERS.price==='paid'&&e.priceType!=='paid')return false;
     if(FILTERS.zone!=='all'&&e.area!==FILTERS.zone)return false;
+    if(FILTERS.maxDist!=null){const d=distKm(e);if(d==null||d>FILTERS.maxDist)return false}
     if(q){const h=(e.title+' '+(e.kind||'')+' '+(e.venue||'')+' '+e.city+' '+(e.details||'')).toLowerCase();if(!h.includes(q))return false}
     return true;
-  }).sort((a,b)=>{const t=new Date();t.setHours(12,0,0,0);
+  }).sort((a,b)=>{if(FILTERS.sort==='dist'){const da=distKm(a),db=distKm(b);
+    if(da==null&&db==null)return 0;if(da==null)return 1;if(db==null)return -1;return da-db}
+    const t=new Date();t.setHours(12,0,0,0);
     const ao=ongoing(a,t)?0:1,bo=ongoing(b,t)?0:1;
     if(ao!==bo)return ao-bo;
     return (a.startDate||'').localeCompare(b.startDate||'')||a.title.localeCompare(b.title)})}
@@ -39,7 +49,7 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   return `<article class="card" data-id="${e.id}">
     <div class="top"><h3>${esc(e.title)}</h3><span class="badge b-${e.category}">${CATL[e.category]||e.category}</span></div>
     <div class="meta">${esc(e.dateLabel||'')}${og}${e.timeLabel?' · '+esc(e.timeLabel):''}</div>
-    <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.kind?' · '+esc(e.kind):''}</div>
+    <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.kind?' · '+esc(e.kind):''}${esc(distSuffix(e))}</div>
     ${priceHTML(e)}
     <div class="more">
       ${e.details?`<p>${esc(e.details)}</p>`:''}
@@ -57,14 +67,14 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
   const pts=list.filter(e=>e.latitude&&e.longitude);
   const colors={music:'#1a56db',comedy:'#9a6200',outdoor:'#157f3d',food:'#b4232f'};
   pts.forEach(e=>{const m=L.circleMarker([e.latitude,e.longitude],{radius:9,color:colors[e.category]||'#111',fillOpacity:.9,weight:2});
-    m.bindPopup(`<b>${esc(e.title)}</b><br>${esc(e.dateLabel||'')}<br>${esc(e.venue||e.city||'')}<br><button onclick="openModal(${e.id})" style="margin-top:6px;padding:6px 12px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer">Dettagli</button>`);
+    m.bindPopup(`<b>${esc(e.title)}</b><br>${esc(e.dateLabel||'')}<br>${esc(e.venue||e.city||'')}${esc(distSuffix(e))}<br><button onclick="openModal(${e.id})" style="margin-top:6px;padding:6px 12px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer">Dettagli</button>`);
     markers.push(m);m.addTo(map)});
   if(pts.length){map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.15))}}
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
     <span class="badge b-${e.category}">${CATL[e.category]||e.category}</span>
     <p class="meta"><b>${esc(e.dateLabel||'')}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>
-    <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}</p>
+    <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${esc(distSuffix(e))}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}${priceHTML(e)}
     ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
     ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}`;
@@ -78,6 +88,9 @@ function bindFilters(){document.querySelectorAll('.fgroup[id]').forEach(g=>{
     g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
     FILTERS[g.id.slice(1).toLowerCase()]=b.dataset.v;render()}))});
   document.getElementById('q').addEventListener('input',e=>{FILTERS.q=e.target.value;render()});
+  const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
+  md.addEventListener('input',()=>{const v=+md.value;FILTERS.maxDist=v>=150?null:v;
+    mdl.textContent=v>=150?'Qualsiasi':'entro '+v+' km';render()});
   const lv=document.getElementById('listView'),mv=document.getElementById('mapView');
   document.getElementById('vList').onclick=()=>{lv.classList.remove('hidden');mv.classList.add('hidden');
     document.getElementById('vList').classList.add('on');document.getElementById('vMap').classList.remove('on')};

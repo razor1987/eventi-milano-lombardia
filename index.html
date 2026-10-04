@@ -47,6 +47,16 @@
         <button data-v="milano">Milano</button>
         <button data-v="lombardia">Lombardia</button>
       </div>
+      <div class="fgroup" id="fSort">
+        <span class="flabel">Ordina</span>
+        <button data-v="date" class="on">Data</button>
+        <button data-v="dist">Distanza</button>
+      </div>
+      <div class="fgroup" id="fDist">
+        <span class="flabel">Distanza max</span>
+        <input type="range" id="maxDist" min="5" max="150" step="5" value="150">
+        <span class="dlabel" id="maxDistLabel">Qualsiasi</span>
+      </div>
       <div class="fgroup">
         <span class="flabel">Vista</span>
         <button id="vList" class="on">Lista</button>
