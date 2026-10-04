@@ -56,8 +56,9 @@ function render(){const list=filtered();
 function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];
   const pts=list.filter(e=>e.latitude&&e.longitude);
   const colors={music:'#1a56db',comedy:'#9a6200',outdoor:'#157f3d',food:'#b4232f'};
-  pts.forEach(e=>{const m=L.circleMarker([e.latitude,e.longitude],{radius:8,color:colors[e.category]||'#111',fillOpacity:.85});
-    m.on('click',()=>openModal(e.id));markers.push(m);m.addTo(map)});
+  pts.forEach(e=>{const m=L.circleMarker([e.latitude,e.longitude],{radius:9,color:colors[e.category]||'#111',fillOpacity:.9,weight:2});
+    m.bindPopup(`<b>${esc(e.title)}</b><br>${esc(e.dateLabel||'')}<br>${esc(e.venue||e.city||'')}<br><button onclick="openModal(${e.id})" style="margin-top:6px;padding:6px 12px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer">Dettagli</button>`);
+    markers.push(m);m.addTo(map)});
   if(pts.length){map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.15))}}
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
