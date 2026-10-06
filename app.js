@@ -78,7 +78,13 @@ function render(){const list=filtered();
   const pts=list.filter(e=>e.latitude&&e.longitude);
   const places=new Set(pts.map(e=>e.latitude.toFixed(4)+','+e.longitude.toFixed(4))).size;
   document.getElementById('mapcount').textContent=places+' luoghi · '+pts.length+' eventi';
-  document.getElementById('list').innerHTML=list.length?list.map(cardHTML).join(''):'<div class="empty">Nessun evento con questi filtri.<br>Prova ad allargare la distanza o il periodo.</div>';
+  // banner in-feed ogni 20 eventi: scorre con la lista
+  const AD_EVERY=20;
+  const parts=[];
+  list.forEach((e,i)=>{parts.push(cardHTML(e));
+    if((i+1)%AD_EVERY===0&&i+1<list.length)
+      parts.push('<div class="adslot" role="complementary" aria-label="Spazio pubblicitario"><span>Spazio pubblicitario</span></div>')});
+  document.getElementById('list').innerHTML=list.length?parts.join(''):'<div class="empty">Nessun evento con questi filtri.<br>Prova ad allargare la distanza o il periodo.</div>';
   document.querySelectorAll('.card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
   updateFCount();renderMap(list)}
 function updateFCount(){let n=0;
