@@ -43,6 +43,7 @@
     <div class="segview" role="tablist">
       <button id="vList" class="on" role="tab">☰ Lista</button>
       <button id="vMap" role="tab">📍 Mappa</button>
+      <button id="vFavs" role="tab">♥ Preferiti <span id="favcount" class="hidden"></span></button>
     </div>
   </div>
 </div>
@@ -113,6 +114,10 @@
   <main id="mapView" class="hidden">
     <p class="maphint">Tocca un pin per vedere l'anteprima · <span id="mapcount"></span></p>
     <div id="map"></div>
+  </main>
+  <main id="favView" class="hidden">
+    <p class="maphint">I tuoi eventi salvati, solo su questo dispositivo · <span id="favtotal"></span></p>
+    <div id="favlist"></div>
   </main>
 </div>
 

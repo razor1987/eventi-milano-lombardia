@@ -134,3 +134,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI"
 .sharemini{margin-left:auto;border:1px solid var(--line);background:transparent;border-radius:999px;width:34px;height:34px;font-size:1rem;cursor:pointer;color:var(--muted);flex:none}
 .sharemini:active{transform:scale(.93)}
 .cfoot{display:flex;align-items:center;gap:8px}
+.favbtn{border:1px solid var(--line);background:transparent;border-radius:999px;width:34px;height:34px;font-size:1.05rem;cursor:pointer;color:var(--muted);flex:none;margin-left:8px;line-height:1}
+.favbtn.on{color:#e11d48;border-color:#e11d48}
+.iconbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:1rem;cursor:pointer;line-height:1;color:var(--muted);flex:none}
+.iconbtn.on{color:#fff;background:var(--accent);border-color:var(--accent)}
+.iconbtn.danger{margin-left:6px}
+.mrowbtns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.mbtn{flex:1;border:1.5px solid var(--line);background:var(--bg2);border-radius:12px;padding:12px;font-weight:700;cursor:pointer;color:var(--ink);font-size:.92rem;min-width:110px}
+.mbtn.on{background:#e11d48;border-color:#e11d48;color:#fff}
+#modalRem.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.mrowbtns .sharebtn{margin-top:0;flex:1;justify-content:center;min-width:110px}
+#favcount{background:var(--accent);color:#fff;font-size:.68rem;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;padding:0 6px}
+.pill.rem{background:rgba(79,70,229,.12);color:var(--accent)}
+.favcard{border-left:3px solid #e11d48}

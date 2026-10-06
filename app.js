@@ -34,6 +34,60 @@ async function setCustomAddress(q){q=(q||'').trim();if(!q)return;
     }else alert('Indirizzo non trovato, prova con città o CAP.');
   }catch(_){alert('Ricerca indirizzo non riuscita, riprova.')}
   updateLocUI()}
+// ---------- Preferiti (solo locale: localStorage) ----------
+let FAVS=[];
+try{FAVS=JSON.parse(localStorage.getItem('ev_favs')||'[]')}catch(_){FAVS=[]}
+function saveFavs(){try{localStorage.setItem('ev_favs',JSON.stringify(FAVS))}catch(_){}}
+function isFav(id){return FAVS.some(f=>f.id===id)}
+function favSnapshot(e){return{id:e.id,title:e.title,startDate:e.startDate,endDate:e.endDate||null,
+  dateLabel:e.dateLabel||'',venue:e.venue||'',city:e.city||'',province:e.province||'',
+  priceLabel:e.priceLabel||'',free:!!e.free,remind:false,notified:false,savedAt:Date.now()}}
+function toggleFav(ev,id){if(ev)ev.stopPropagation();
+  const i=FAVS.findIndex(f=>f.id===id);
+  if(i>=0){FAVS.splice(i,1)}else{const e=EVENTS.find(x=>x.id===id);if(e)FAVS.push(favSnapshot(e))}
+  saveFavs();updateFavUI();renderFavs();
+  // aggiorna i cuoricini visibili
+  document.querySelectorAll('[data-favbtn="'+id+'"]').forEach(b=>b.classList.toggle('on',isFav(id)));
+  if(!document.getElementById('modal').classList.contains('hidden'))openModal(id)}
+async function toggleRemind(ev,id){if(ev)ev.stopPropagation();
+  const f=FAVS.find(x=>x.id===id);if(!f)return;
+  if(!f.remind&&'Notification' in window&&Notification.permission==='default'){
+    try{await Notification.requestPermission()}catch(_){}}
+  f.remind=!f.remind;f.notified=false;saveFavs();renderFavs();
+  document.querySelectorAll('[data-rembtn="'+id+'"]').forEach(b=>b.classList.toggle('on',f.remind));
+  const mb=document.getElementById('modalRem');if(mb)mb.classList.toggle('on',f.remind)}
+function updateFavUI(){const n=FAVS.length,el=document.getElementById('favcount');
+  if(el){el.textContent=n;el.classList.toggle('hidden',!n)}}
+function cleanupFavs(){const t=dstr(new Date());const before=FAVS.length;
+  FAVS=FAVS.filter(f=>!f.startDate||f.startDate>=t);
+  if(FAVS.length!==before){saveFavs();updateFavUI()}}
+function checkReminders(){ // promemoria locali: controllo a ogni apertura pagina
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const now=new Date();const t0=dstr(now);const t1=dstr(new Date(now.getTime()+864e5));
+  let changed=false;
+  FAVS.forEach(f=>{if(f.remind&&!f.notified&&f.startDate>=t0&&f.startDate<=t1){
+    try{new Notification('⏰ '+f.title,{body:(f.dateLabel||'')+' · '+(f.venue||f.city||''),
+      tag:'ev-'+f.id})}catch(_){}
+    f.notified=true;changed=true}});
+  if(changed)saveFavs()}
+function renderFavs(){const box=document.getElementById('favlist');if(!box)return;
+  cleanupFavs();
+  const tot=document.getElementById('favtotal');
+  if(!FAVS.length){box.innerHTML='<div class="empty">Nessun preferito.<br>Tocca il ♡ sulle schede per salvare gli eventi.</div>';
+    if(tot)tot.textContent='0 eventi';return}
+  if(tot)tot.textContent=FAVS.length+(FAVS.length===1?' evento':' eventi');
+  const list=[...FAVS].sort((a,b)=>(a.startDate||'').localeCompare(b.startDate||''));
+  box.innerHTML=list.map(f=>`
+  <article class="card favcard">
+    <div class="chead"><h3>${esc(f.title)}</h3>
+      <button class="iconbtn ${f.remind?'on':''}" data-rembtn="${f.id}" onclick="toggleRemind(event,${f.id})" title="Ricordamelo" aria-label="Attiva promemoria">🔔</button>
+      <button class="iconbtn danger" onclick="toggleFav(event,${f.id})" title="Rimuovi" aria-label="Rimuovi dai preferiti">✕</button>
+    </div>
+    <div class="meta">${esc(f.dateLabel||'')}</div>
+    <div class="meta">${esc(f.venue||'')}${f.venue&&f.city?' · ':''}${esc(f.city||'')}</div>
+    <div class="cfoot"><span class="pill ${f.free?'free':'paid'}">${esc(f.priceLabel||(f.free?'Gratis':'A pagamento'))}</span>
+    ${f.remind?'<span class="pill rem">🔔 promemoria attivo</span>':''}</div>
+  </article>`).join('')}
 const CATL={music:'Musica',fest:'Festival',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
 const INAUG_RE=/(inaugur|opening|vernissage|apertura|open day)/i;
 const FEST_RE=/fest(?!a\b|e\b)/i; // festival veri, non "festa/feste" di paese
@@ -98,7 +152,7 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   return `<article class="card b-${catOf(e)}" data-id="${e.id}">
     <div class="chead"><h3>${esc(e.title)}${og}</h3>${dateBadge(e)}</div>
     <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${dt?` · <span class="dist">${esc(dt)} ${refLabel()}</span>`:''}</div>
-    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span><button class="sharemini" data-share="${e.id}" onclick="shareEvent(${e.id},event)" aria-label="Condividi ${esc(e.title)}">↗</button></div>
+    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span><button class="favbtn ${isFav(e.id)?'on':''}" data-favbtn="${e.id}" onclick="toggleFav(event,${e.id})" aria-label="Salva nei preferiti">♡</button><button class="sharemini" data-share="${e.id}" onclick="shareEvent(${e.id},event)" aria-label="Condividi ${esc(e.title)}">↗</button></div>
     <div class="more">
       ${e.dateLabel?`<p><b>${esc(e.dateLabel)}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>`:''}
       ${e.details?`<p>${esc(e.details)}</p>`:''}
@@ -167,7 +221,9 @@ function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
     ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
     ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
-    <button class="sharebtn" data-share="${e.id}" onclick="shareEvent(${e.id},event)">↗ Condividi evento</button>`;
+    <div class="mrowbtns"><button id="modalFav" class="mbtn ${isFav(e.id)?'on':''}" onclick="toggleFav(event,${e.id})">♡ Salva</button>
+    ${isFav(e.id)?`<button id="modalRem" class="mbtn ${(FAVS.find(f=>f.id===e.id)||{}).remind?'on':''}" onclick="toggleRemind(event,${e.id})">🔔 Ricordamelo</button>`:''}
+    <button class="sharebtn" data-share="${e.id}" onclick="shareEvent(${e.id},event)">↗ Condividi</button></div>`;
   document.getElementById('modal').classList.remove('hidden')}
 function initMap(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<div class="empty">Mappa non caricata: controlla la connessione e ricarica.</div>';return false}
   map=L.map('map',{tap:true}).setView([45.46,9.19],9);
@@ -215,21 +271,24 @@ function bindFilters(){
     syncChips();render()}));
   document.getElementById('ftoggle').addEventListener('click',()=>{
     document.getElementById('filters').classList.toggle('hidden')});
-  const lv=document.getElementById('listView'),mv=document.getElementById('mapView');
-  const show=list=>{lv.classList.toggle('hidden',!list);mv.classList.toggle('hidden',list);
-    document.getElementById('vList').classList.toggle('on',list);
-    document.getElementById('vMap').classList.toggle('on',!list);
-    if(!list){if(!map&&!initMap())return;
+  const lv=document.getElementById('listView'),mv=document.getElementById('mapView'),fv=document.getElementById('favView');
+  const show=v=>{lv.classList.toggle('hidden',v!=='list');mv.classList.toggle('hidden',v!=='map');fv.classList.toggle('hidden',v!=='favs');
+    document.getElementById('vList').classList.toggle('on',v==='list');
+    document.getElementById('vMap').classList.toggle('on',v==='map');
+    document.getElementById('vFavs').classList.toggle('on',v==='favs');
+    if(v==='map'){if(!map&&!initMap())return;
       const fix=()=>{if(!map)return;map.invalidateSize();renderMap(filtered())};
-      requestAnimationFrame(()=>requestAnimationFrame(fix));setTimeout(fix,400)}};
-  document.getElementById('vList').onclick=()=>show(true);
-  document.getElementById('vMap').onclick=()=>show(false);
+      requestAnimationFrame(()=>requestAnimationFrame(fix));setTimeout(fix,400)}
+    if(v==='favs')renderFavs()};
+  document.getElementById('vList').onclick=()=>show('list');
+  document.getElementById('vMap').onclick=()=>show('map');
+  document.getElementById('vFavs').onclick=()=>show('favs');
   document.getElementById('mclose').onclick=()=>document.getElementById('modal').classList.add('hidden');
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.target.classList.add('hidden')})}
 fetch('data/events.json').then(r=>r.json()).then(d=>{EVENTS=d.events;
   const u=new Date(d.generatedAt);
   document.getElementById('updated').textContent=u.toLocaleDateString('it-IT',{day:'numeric',month:'long'})+' '+u.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  bindFilters();syncChips();render();
+  bindFilters();syncChips();updateFavUI();render();checkReminders();
   // Deep link: ?evento=ID apre direttamente la scheda evento
   try{const eid=new URLSearchParams(location.search).get('evento');
     if(eid!=null){const id=Number(eid);if(Number.isFinite(id))openModal(id)}}catch(_){}
