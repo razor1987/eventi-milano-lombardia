@@ -1,5 +1,39 @@
 let EVENTS=[], FILTERS={q:'',period:'all',cat:'all',price:'all',zone:'all',sort:'date',maxDist:null,only:''}, map=null, markers=[];
 const MILANO={lat:45.4642,lon:9.19};
+// Punto di riferimento per le distanze: posizione utente se concessa, altrimenti Milano.
+// Salvato in localStorage così sopravvive alle visite.
+let REF={lat:MILANO.lat,lon:MILANO.lon,label:'Milano',custom:false};
+try{const s=JSON.parse(localStorage.getItem('ev_ref')||'null');
+  if(s&&typeof s.lat==='number'&&typeof s.lon==='number')REF=s;}catch(_){}
+function saveRef(){try{localStorage.setItem('ev_ref',JSON.stringify(REF))}catch(_){}}
+function refLabel(){return REF.custom?('da '+REF.label):'da Milano'}
+function updateLocUI(){const el=document.getElementById('refLabel');if(!el)return;
+  el.textContent='riferimento: '+(REF.custom?REF.label:'Milano');
+  const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
+  if(md&&mdl){const v=+md.value;mdl.textContent=v>=150?'Qualsiasi':'entro '+v+' km '+refLabel()}}
+function applyRef(){saveRef();updateLocUI();render();
+  if(map){try{map.setView([REF.lat,REF.lon],9)}catch(_){}}}
+function useMyPosition(){const b=document.getElementById('useMyPos');
+  if(!navigator.geolocation){alert('Geolocalizzazione non supportata dal browser.');return}
+  if(b)b.textContent='⏳ Localizzo…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    REF={lat:+p.coords.latitude.toFixed(4),lon:+p.coords.longitude.toFixed(4),label:'te',custom:true};
+    applyRef();if(b)b.textContent='📍 La mia posizione';
+  },()=>{
+    alert('Posizione non disponibile: controlla i permessi del browser.');
+    if(b)b.textContent='📍 La mia posizione';
+  },{timeout:10000})}
+async function setCustomAddress(q){q=(q||'').trim();if(!q)return;
+  const lbl=document.getElementById('refLabel');if(lbl)lbl.textContent='ricerca…';
+  try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q='+encodeURIComponent(q),
+      {headers:{'Accept':'application/json'}});
+    const j=await r.json();
+    if(j&&j.length){const name=(j[0].display_name||'').split(',').slice(0,2).join(',').trim()||q;
+      REF={lat:+parseFloat(j[0].lat).toFixed(4),lon:+parseFloat(j[0].lon).toFixed(4),label:name,custom:true};
+      applyRef();
+    }else alert('Indirizzo non trovato, prova con città o CAP.');
+  }catch(_){alert('Ricerca indirizzo non riuscita, riprova.')}
+  updateLocUI()}
 const CATL={music:'Musica',fest:'Festival',comedy:'Stand-up',outdoor:"All'aperto",food:'Sagre & Food'};
 const INAUG_RE=/(inaugur|opening|vernissage|apertura|open day)/i;
 const FEST_RE=/fest(?!a\b|e\b)/i; // festival veri, non "festa/feste" di paese
@@ -23,8 +57,8 @@ function weekendRange(){const n=new Date(),d=n.getDay(),t=new Date(n);t.setHours
   let sat=new Date(t);if(d===6)sat=new Date(t);else if(d===0)sat=new Date(t),sat.setDate(sat.getDate()-1);else sat.setDate(sat.getDate()+(6-d));
   let sun=new Date(sat);sun.setDate(sun.getDate()+1);return[sat,sun]}
 function distKm(e){if(!e.latitude||!e.longitude)return null;
-  const R=6371,dLa=(e.latitude-MILANO.lat)*Math.PI/180,dLo=(e.longitude-MILANO.lon)*Math.PI/180;
-  const a=Math.sin(dLa/2)**2+Math.cos(MILANO.lat*Math.PI/180)*Math.cos(e.latitude*Math.PI/180)*Math.sin(dLo/2)**2;
+  const R=6371,dLa=(e.latitude-REF.lat)*Math.PI/180,dLo=(e.longitude-REF.lon)*Math.PI/180;
+  const a=Math.sin(dLa/2)**2+Math.cos(REF.lat*Math.PI/180)*Math.cos(e.latitude*Math.PI/180)*Math.sin(dLo/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function distTxt(e){const d=distKm(e);if(d==null)return'';return d<1?'meno di 1 km':Math.round(d)+' km'}
 function matchPeriod(e){const t=new Date();t.setHours(12,0,0,0);const p=FILTERS.period;
@@ -63,7 +97,7 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   const dt=distTxt(e);
   return `<article class="card b-${catOf(e)}" data-id="${e.id}">
     <div class="chead"><h3>${esc(e.title)}${og}</h3>${dateBadge(e)}</div>
-    <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</div>
+    <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${dt?` · <span class="dist">${esc(dt)} ${refLabel()}</span>`:''}</div>
     <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span><button class="sharemini" data-share="${e.id}" onclick="shareEvent(${e.id},event)" aria-label="Condividi ${esc(e.title)}">↗</button></div>
     <div class="more">
       ${e.dateLabel?`<p><b>${esc(e.dateLabel)}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>`:''}
@@ -109,7 +143,7 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
       {radius:evs.length>1?13:9,color:colors[domCat]||'#444',fillOpacity:.92,weight:2});
     if(evs.length>1)m.bindTooltip(String(evs.length),{permanent:true,direction:'center',className:'pcount'});
     const items=evs.map(e=>{const dt=distTxt(e);
-      return `<button class="popitem" onclick="openModal(${e.id})"><b>${esc(e.title)}</b><span>${esc(e.dateLabel||'')}${dt?' · '+esc(dt)+' da Milano':''}</span></button>`}).join('');
+      return `<button class="popitem" onclick="openModal(${e.id})"><b>${esc(e.title)}</b><span>${esc(e.dateLabel||'')}${dt?' · '+esc(dt)+' '+refLabel():''}</span></button>`}).join('');
     m.bindPopup(`<div class="poplist">${items}</div>`);
     markers.push(m);m.addTo(map)});
   if(pts.length){try{map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.12))}catch(_){}}}
@@ -129,7 +163,7 @@ function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
     <span class="catpill">${CATL[catOf(e)]}</span>
     <p class="meta"><b>${esc(e.dateLabel||'')}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>
-    <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</p>
+    <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} ${refLabel()}</span>`:''}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
     ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
     ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
@@ -160,7 +194,12 @@ function bindFilters(){
   qc.addEventListener('click',()=>{q.value='';FILTERS.q='';qc.classList.add('hidden');render();q.focus()});
   const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
   md.addEventListener('input',()=>{const v=+md.value;FILTERS.maxDist=v>=150?null:v;
-    mdl.textContent=v>=150?'Qualsiasi':'entro '+v+' km';syncChips();render()});
+    mdl.textContent=v>=150?'Qualsiasi':'entro '+v+' km '+refLabel();syncChips();render()});
+  document.getElementById('useMyPos').addEventListener('click',useMyPosition);
+  const ca=document.getElementById('customAddr');
+  ca.addEventListener('keydown',e=>{if(e.key==='Enter')setCustomAddress(ca.value)});
+  ca.addEventListener('change',()=>setCustomAddress(ca.value));
+  updateLocUI();
   document.querySelectorAll('#chips button').forEach(b=>b.addEventListener('click',()=>{
     const k=b.dataset.chip;
     if(k==='today'){FILTERS.period=FILTERS.period==='today'?'all':'today';setGroup('fPeriod',FILTERS.period)}
@@ -170,8 +209,9 @@ function bindFilters(){
     if(k==='inaug'){FILTERS.only=FILTERS.only==='inaug'?'':'inaug'}
     if(k==='near'){const on=!(FILTERS.maxDist===20&&FILTERS.sort==='dist');
       FILTERS.maxDist=on?20:null;FILTERS.sort=on?'dist':'date';
-      md.value=on?20:150;mdl.textContent=on?'entro 20 km':'Qualsiasi';
-      setGroup('fSort',FILTERS.sort)}
+      md.value=on?20:150;mdl.textContent=on?'entro 20 km '+refLabel():'Qualsiasi';
+      setGroup('fSort',FILTERS.sort);
+      if(on&&!REF.custom)useMyPosition()}
     syncChips();render()}));
   document.getElementById('ftoggle').addEventListener('click',()=>{
     document.getElementById('filters').classList.toggle('hidden')});
