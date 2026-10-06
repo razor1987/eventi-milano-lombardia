@@ -156,3 +156,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI"
 .mdesc.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .descbtn{background:none;border:none;color:var(--accent);font-weight:700;font-size:.87rem;cursor:pointer;padding:6px 0 0}
 .mbox .addr{margin-top:14px}
+.datebadge.range{font-size:.72rem;min-width:70px;line-height:1.5}
+.datebadge.range small{display:inline;font-size:.85em}
+.pricepill{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

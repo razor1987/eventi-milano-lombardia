@@ -140,18 +140,22 @@ function filtered(){const q=FILTERS.q.toLowerCase();
     if(ao!==bo)return ao-bo;
     return (a.startDate||'').localeCompare(b.startDate||'')||a.title.localeCompare(b.title)})}
 function pricePill(e){const c=e.priceType==='free'?'free':e.priceType==='paid'?'paid':'unknown';
-  const t=e.priceType==='free'?'Gratis':e.priceType==='paid'?e.priceLabel:'Prezzo n.d.';
-  return `<span class="pricepill ${c}">${esc(t)}</span>`}
+  const lbl=e.priceType==='paid'?(e.priceLabel&&e.priceLabel.length<=24?e.priceLabel:(e.priceLabel?'A pagamento':'Prezzo n.d.')):(e.priceType==='free'?'Gratis':'Prezzo n.d.');
+  return `<span class="pricepill ${c}">${esc(lbl)}</span>`}
+function priceSection(e){ // scheda: etichetta prezzo lunga mostrata per esteso
+  if(e.priceType!=='paid'||!e.priceLabel||e.priceLabel.length<=24)return '';
+  return `<div class="msec"><h3>Prezzi</h3><p class="mdesc">${esc(e.priceLabel)}</p></div>`}
 function srcHTML(e){if(!e.sources||!e.sources.length)return'';
   return `<div class="src">Fonti: `+e.sources.map(s=>s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}${s.channel==='social'?' ·social':''}</a>`:`<span>${esc(s.name)}</span>`).join('')+`</div>`}
 function dateBadge(e){const d=parseD(e.startDate);if(!d)return'';
   const e2=e.endDate&&e.endDate!==e.startDate?parseD(e.endDate):null;
-  let txt=`${d.getDate()}<small>${MONTHS[d.getMonth()]}</small>`;
-  if(e2){ // evento su più giorni: mostra il range
+  let txt=`${d.getDate()}<small>${MONTHS[d.getMonth()]}</small>`,cls='';
+  if(e2){ // evento su più giorni: mostra il range in formato compatto
+    cls=' range';
     if(e2.getFullYear()===d.getFullYear()&&e2.getMonth()===d.getMonth())
-      txt=`${d.getDate()}–${e2.getDate()}<small>${MONTHS[d.getMonth()]}</small>`;
-    else txt=`${d.getDate()}<small>${MONTHS[d.getMonth()]}</small>–${e2.getDate()}<small>${MONTHS[e2.getMonth()]}</small>`}
-  return `<span class="datebadge">${txt}</span>`}
+      txt=`${d.getDate()}–${e2.getDate()} <small>${MONTHS[d.getMonth()]}</small>`;
+    else txt=`${d.getDate()} <small>${MONTHS[d.getMonth()]}</small> – ${e2.getDate()} <small>${MONTHS[e2.getMonth()]}</small>`}
+  return `<span class="datebadge${cls}">${txt}</span>`}
 function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   const og=ongoing(e,t)?'<span class="ongoing">in corso</span>':'';
   const dt=distTxt(e);
@@ -249,6 +253,7 @@ function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
     <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} ${refLabel()}</span>`:''}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
     ${ticketCTA(e)}
+    ${priceSection(e)}
     ${e.details?`<div class="msec"><h3>Dettagli</h3><p class="mdesc${longDesc?' clamp':''}">${esc(e.details)}</p>${longDesc?`<button class="descbtn" onclick="toggleDesc(this)">Leggi tutto ▾</button>`:''}</div>`:''}
     ${e.foodDetails?`<div class="msec"><h3>Food</h3><p class="mdesc">${esc(e.foodDetails)}</p></div>`:''}
     ${e.address?`<p class="meta addr">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
