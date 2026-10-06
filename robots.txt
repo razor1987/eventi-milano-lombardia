@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://eventi-milano-lombardia.onrender.com/sitemap.xml

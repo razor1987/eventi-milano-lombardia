@@ -64,7 +64,7 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   return `<article class="card b-${catOf(e)}" data-id="${e.id}">
     <div class="chead"><h3>${esc(e.title)}${og}</h3>${dateBadge(e)}</div>
     <div class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</div>
-    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span></div>
+    <div class="cfoot">${pricePill(e)}<span class="catpill">${CATL[catOf(e)]}</span><button class="sharemini" data-share="${e.id}" onclick="shareEvent(${e.id},event)" aria-label="Condividi ${esc(e.title)}">↗</button></div>
     <div class="more">
       ${e.dateLabel?`<p><b>${esc(e.dateLabel)}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>`:''}
       ${e.details?`<p>${esc(e.details)}</p>`:''}
@@ -107,6 +107,17 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
     m.bindPopup(`<div class="poplist">${items}</div>`);
     markers.push(m);m.addTo(map)});
   if(pts.length){try{map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.12))}catch(_){}}}
+function eventUrl(id){return location.origin+location.pathname+'?evento='+encodeURIComponent(id)}
+async function shareEvent(id,ev){if(ev)ev.stopPropagation();
+  const e=EVENTS.find(x=>x.id===id);if(!e)return;
+  const url=eventUrl(id), title=e.title+' — Eventi Milano Lombardia';
+  const text=`${e.title}${e.dateLabel?' · '+e.dateLabel:''}${e.venue?' @ '+e.venue:''}`;
+  if(navigator.share){try{await navigator.share({title,text,url});return}catch(_){/* annullato */}
+  }
+  try{await navigator.clipboard.writeText(url);
+    const b=document.querySelectorAll(`[data-share="${id}"]`);
+    b.forEach(x=>{const o=x.textContent;x.textContent='Copiato!';setTimeout(()=>x.textContent=o,1800)});
+  }catch(_){prompt('Copia il link:',url)}}
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   const dt=distTxt(e);
   document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
@@ -115,7 +126,8 @@ function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
     <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} da Milano</span>`:''}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
     ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
-    ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}`;
+    ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
+    <button class="sharebtn" data-share="${e.id}" onclick="shareEvent(${e.id},event)">↗ Condividi evento</button>`;
   document.getElementById('modal').classList.remove('hidden')}
 function initMap(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<div class="empty">Mappa non caricata: controlla la connessione e ricarica.</div>';return false}
   map=L.map('map',{tap:true}).setView([45.46,9.19],9);
@@ -171,4 +183,8 @@ function bindFilters(){
 fetch('data/events.json').then(r=>r.json()).then(d=>{EVENTS=d.events;
   const u=new Date(d.generatedAt);
   document.getElementById('updated').textContent=u.toLocaleDateString('it-IT',{day:'numeric',month:'long'})+' '+u.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  bindFilters();syncChips();render()}).catch(()=>{document.getElementById('list').innerHTML='<div class="empty">Dati non disponibili.</div>'});
+  bindFilters();syncChips();render();
+  // Deep link: ?evento=ID apre direttamente la scheda evento
+  try{const eid=new URLSearchParams(location.search).get('evento');
+    if(eid!=null){const id=Number(eid);if(Number.isFinite(id))openModal(id)}}catch(_){}
+}).catch(()=>{document.getElementById('list').innerHTML='<div class="empty">Dati non disponibili.</div>'});
