@@ -2,10 +2,14 @@
 """Fonde i near-duplicate in data/events.json (stesso evento, titoli leggermente diversi).
 
 Euristica conservativa: fonde solo se stessa data di inizio + stesso luogo
-(venue normalizzata, fallback città) + titoli molto simili (ratio > 0.65,
-stesso headliner prima del primo separatore, o un titolo contenuto nell'altro)
-+ endDate compatibili. In caso di fusione unisce le fonti (dedup per URL),
-tiene i testi più lunghi e il prezzo noto se presente.
++ titoli molto simili + endDate compatibili. Il luogo gestisce gli alias
+("Circolo Arci Bellezza" = "Arci Bellezza", troncamenti tra parentesi);
+i titoli usano ratio > 0.65, stesso headliner, inclusione token dell'headliner
+("Ligabue" in "Luciano Ligabue"), o Jaccard >= 0.5 sui token (prende titoli
+con parole riordinate tipo "Stand up Comedy Cuccagna – open mic – ...").
+Non fonde mai due eventi con orari diversi (doppio spettacolo).
+In caso di fusione unisce le fonti (dedup per URL), tiene i testi più lunghi
+e il prezzo noto se presente.
 
 Uso: python3 tools/dedup.py  (idempotente)
 """
@@ -20,21 +24,47 @@ EVENTS = os.path.join(BASE, 'data', 'events.json')
 def norm(s):
     return re.sub(r'[^a-z0-9]+', ' ', (s or '').lower()).strip()
 
-def vkey(e):
-    v = norm(e.get('venue')) or norm(e.get('city'))
-    return re.sub(r'\s+', '', v)[:12]
+def canon_venue(e):
+    v = e.get('venue') or ''
+    v = re.sub(r'\(.*', '', v)          # tronca i parentetici ("L'Ambrata (Lambrate...")
+    v = norm(v)
+    v = re.sub(r'^circolo\s+', '', v)   # "circolo arci bellezza" -> "arci bellezza"
+    return v or norm(e.get('city'))
+
+def same_venue(a, b):
+    va, vb = canon_venue(a), canon_venue(b)
+    if not va or not vb:
+        return False
+    if va == vb:
+        return True
+    sa = re.sub(r'\s+', '', va)
+    sb = re.sub(r'\s+', '', vb)
+    # inclusione solo se il più corto è abbastanza lungo da essere distintivo
+    if len(sa) >= 8 and sa in sb:
+        return True
+    if len(sb) >= 8 and sb in sa:
+        return True
+    return False
 
 def headliner(title):
     t = title or ''
     for sep in ['–', '—', '-', '(', ':', '|']:
         if sep in t:
             t = t.split(sep)[0]
-    return norm(t)
+    t = norm(t)
+    t = re.sub(r'\s+in concerto$', '', t)  # suffisso generico
+    return t
 
 def endok(a, b):
     ea = a.get('endDate') or a.get('startDate')
     eb = b.get('endDate') or b.get('startDate')
     return ea == eb
+
+def timeok(a, b):
+    ta = (a.get('timeLabel') or '').strip()
+    tb = (b.get('timeLabel') or '').strip()
+    # due orari diversi => probabilmente doppio spettacolo, non fondere
+    return not (ta and tb and ta != tb)
 
 def similar(a, b):
     ta, tb = norm(a.get('title')), norm(b.get('title'))
@@ -45,7 +75,15 @@ def similar(a, b):
     ha, hb = headliner(a.get('title')), headliner(b.get('title'))
     if ha and ha == hb:
         return True
-    return ta in tb or tb in ta
+    sa, sb = set(ha.split()), set(hb.split())
+    if sa and sb and (sa <= sb or sb <= sa):
+        return True
+    if ta in tb or tb in ta:
+        return True
+    ua, ub = set(ta.split()), set(tb.split())
+    if ua and ub and len(ua & ub) / len(ua | ub) >= 0.5:
+        return True
+    return False
 
 def score(e):
     s = len(e.get('details') or '') + len(e.get('foodDetails') or '')
@@ -95,7 +133,7 @@ def main():
     evs = d['events']
     groups = defaultdict(list)
     for e in evs:
-        groups[(e.get('startDate'), vkey(e))].append(e)
+        groups[e.get('startDate')].append(e)
     removed = 0
     for key, g in groups.items():
         if len(g) < 2:
@@ -108,7 +146,8 @@ def main():
             return x
         for i in range(len(g)):
             for j in range(i + 1, len(g)):
-                if endok(g[i], g[j]) and similar(g[i], g[j]):
+                if (same_venue(g[i], g[j]) and endok(g[i], g[j])
+                        and timeok(g[i], g[j]) and similar(g[i], g[j])):
                     parent[find(i)] = find(j)
         clusters = defaultdict(list)
         for i, e in enumerate(g):

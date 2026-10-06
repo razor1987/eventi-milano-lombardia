@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOCKUP v4 — Design system moderno</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f8fc; --card:#ffffff; --ink:#0c0c10; --muted:#5c5c68;
+  --line:rgba(20,20,40,.08); --accent:#4f46e5; --accent2:#7c3aed;
+  --grad:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#a855f7);
+  --shadow:0 1px 2px rgba(16,16,20,.05),0 8px 28px rgba(79,70,229,.09);
+  --shadow-lg:0 2px 6px rgba(16,16,20,.06),0 18px 50px rgba(79,70,229,.16);
+  color-scheme:light dark;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0a0a0e; --card:#14141a; --ink:#f5f5f7; --muted:#9c9ca8;
+    --line:rgba(255,255,255,.09); --accent:#818cf8; --accent2:#a78bfa;
+    --grad:linear-gradient(135deg,#818cf8,#a78bfa 60%,#c4b5fd);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 32px rgba(0,0,0,.45);
+    --shadow-lg:0 2px 8px rgba(0,0,0,.5),0 22px 60px rgba(129,140,248,.12);
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:600px;margin:0 auto;padding:0 18px}
+.note-top{text-align:center;font-size:.78rem;color:var(--muted);padding:12px;letter-spacing:.06em}
+/* HERO con mesh gradient */
+.hero{position:relative;overflow:hidden;padding:60px 24px 46px;text-align:center;background:
+  radial-gradient(600px 300px at 20% 0%,rgba(124,58,237,.16),transparent 60%),
+  radial-gradient(700px 340px at 85% 10%,rgba(79,70,229,.18),transparent 60%),var(--bg)}
+.hero h1{font-size:2.1rem;font-weight:800;letter-spacing:-.035em;line-height:1.06;position:relative}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);margin-top:10px;font-size:.95rem;position:relative}
+.search{position:relative;max-width:520px;margin:26px auto 0;display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:7px 7px 7px 18px;box-shadow:var(--shadow-lg)}
+.search svg{flex:none;color:var(--muted)}
+.search input{flex:1;border:none;background:transparent;font-size:1rem;padding:12px;color:var(--ink);outline:none;min-width:0}
+.search button{border:none;background:var(--grad);color:#fff;font-weight:800;border-radius:13px;padding:13px 24px;font-size:.95rem;cursor:pointer;box-shadow:0 6px 18px rgba(124,58,237,.35)}
+/* chips con icone SVG */
+.chips{display:flex;gap:10px;overflow-x:auto;padding:22px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:11px 18px;font-size:.88rem;font-weight:700;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);transition:transform .15s}
+.chip:active{transform:scale(.96)}
+.chip svg{width:17px;height:17px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.on svg{stroke:var(--bg)}
+/* filter button */
+.frow{display:flex;gap:10px;margin:6px 0 4px}
+.fbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:15px;font-weight:800;font-size:.95rem;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
+.fbtn svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fbtn .n{background:var(--grad);color:#fff;font-size:.72rem;border-radius:999px;min-width:23px;height:23px;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+/* cards con profondità */
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:24px 0 14px}
+.sec h2{font-size:1.2rem;font-weight:800;letter-spacing:-.02em}
+.sec span{color:var(--muted);font-size:.83rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--grad);opacity:.9}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.chead{display:flex;gap:14px;align-items:flex-start}
+.date{flex:none;width:58px;height:66px;border-radius:16px;background:var(--grad);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 16px rgba(124,58,237,.3)}
+.date b{font-size:1.4rem;line-height:1}
+.date small{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;opacity:.85}
+.card h3{font-size:1.04rem;font-weight:700;letter-spacing:-.01em;line-height:1.32}
+.meta{color:var(--muted);font-size:.86rem;margin-top:8px;display:flex;align-items:center;gap:6px}
+.meta svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;flex:none}
+.meta .dist{color:var(--accent);font-weight:800}
+.foot{display:flex;gap:8px;align-items:center;margin-top:13px}
+.pill{font-size:.74rem;font-weight:800;border-radius:999px;padding:6px 13px;letter-spacing:.01em}
+.pill.free{background:rgba(34,197,94,.13);color:#16a34a}
+.pill.paid{background:rgba(245,158,11,.14);color:#d97706}
+@media(prefers-color-scheme:dark){.pill.free{color:#4ade80}.pill.paid{color:#fbbf24}}
+.pill.cat{background:var(--bg);color:var(--muted);border:1px solid var(--line);font-weight:600}
+.share{margin-left:auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.share svg{width:17px;height:17px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* sheet filtri */
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:var(--shadow-lg);margin-top:26px}
+.sheet-head{padding:20px;text-align:center;font-weight:800;font-size:1.05rem;border-bottom:1px solid var(--line);position:relative}
+.sheet-head::before{content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);width:44px;height:5px;border-radius:999px;background:var(--line)}
+.fsec{padding:20px 22px;border-bottom:1px solid var(--line)}
+.fsec h4{display:flex;align-items:center;gap:10px;font-size:.95rem;font-weight:800;margin-bottom:13px}
+.fsec h4 svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fsec h4 .grad-ic{width:34px;height:34px;border-radius:11px;background:var(--grad);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 12px rgba(124,58,237,.3)}
+.fsec h4 .grad-ic svg{stroke:#fff;width:18px;height:18px}
+.pills{display:flex;flex-wrap:wrap;gap:9px}
+.pills button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:11px 20px;font-size:.9rem;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s}
+.pills button.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(124,58,237,.32)}
+.sheet-foot{display:flex;gap:10px;padding:18px 22px}
+.reset{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:15px;font-weight:800;color:var(--ink);font-size:.95rem;cursor:pointer}
+.show{flex:2;border:none;background:var(--grad);border-radius:16px;padding:15px;font-weight:800;color:#fff;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.38)}
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding:34px 20px}
+</style></head><body>
+<p class="note-top">MOCKUP v4 · icone SVG · gradienti · profondità · segue tema telefono</p>
+<div class="hero">
+<div class="wrap">
+<h1>Cosa facciamo<br><span class="g">stasera?</span></h1>
+<p><b>2.804 eventi</b> · concerti, festival, stand-up, sagre</p>
+<div class="search">
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+<input placeholder="Cerca concerto, sagra, locale…">
+<button>Cerca</button>
+</div>
+</div>
+</div>
+<div class="wrap">
+<div class="chips">
+<button class="chip on"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>Stasera</button>
+<button class="chip"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Weekend</button>
+<button class="chip"><svg viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 01-2-2 2 2 0 012-2h13v4zM3 5v14a2 2 0 002 2h16V7"/><path d="M16 5v14"/></svg>Gratis</button>
+<button class="chip"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/></svg>Party</button>
+<button class="chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Vicino a me</button>
+</div>
+<div class="frow">
+<button class="fbtn"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtri<span class="n">2</span></button>
+</div>
+<div class="sec"><h2>In evidenza</h2><span>128 eventi</span></div>
+<div class="card">
+<div class="chead">
+<div class="date"><b>16</b><small>ott</small></div>
+<h3>No donne bianche etero — serata stand-up allo YellowSquare</h3>
+</div>
+<p class="meta"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>YellowSquare · Milano · <span class="dist">2 km da te</span></p>
+<div class="foot"><span class="pill free">Gratis</span><span class="pill cat">Stand-up</span>
+<button class="share"><svg viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg></button></div>
+</div>
+<div class="card">
+<div class="chead">
+<div class="date"><b>10</b><small>ott</small></div>
+<h3>Brunori Sas — Teatro degli Arcimboldi</h3>
+</div>
+<p class="meta"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Teatro degli Arcimboldi · Milano · <span class="dist">4 km da te</span></p>
+<div class="foot"><span class="pill paid">A pagamento</span><span class="pill cat">Musica</span>
+<button class="share"><svg viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg></button></div>
+</div>
+<!-- pannello filtri -->
+<div class="sheet">
+<div class="sheet-head">Filtri</div>
+<div class="fsec">
+<h4><span class="grad-ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>Quando</h4>
+<div class="pills"><button class="on">Tutti</button><button>Oggi</button><button>Weekend</button><button>7 giorni</button><button>30 giorni</button></div>
+</div>
+<div class="fsec">
+<h4><span class="grad-ic"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v11"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="15" r="2.5"/></svg></span>Cosa</h4>
+<div class="pills"><button class="on">Tutte</button><button>Musica</button><button>Festival</button><button>Stand-up</button><button>All'aperto</button><button>Sagre &amp; Food</button></div>
+</div>
+<div class="fsec">
+<h4><span class="grad-ic"><svg viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 01-2-2 2 2 0 012-2h13v4zM3 5v14a2 2 0 002 2h16V7"/></svg></span>Prezzo</h4>
+<div class="pills"><button class="on">Tutti</button><button>Gratis</button><button>A pagamento</button></div>
+</div>
+<div class="fsec">
+<h4><span class="grad-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>Dove</h4>
+<div class="pills"><button class="on">Ovunque</button><button>Milano</button><button>Lombardia</button><button>La mia posizione</button></div>
+</div>
+<div class="sheet-foot"><button class="reset">Azzera</button><button class="show">Mostra 128 eventi</button></div>
+</div>
+</div>
+<footer>Mockup v4 — icone SVG · gradienti · profondità · light/dark automatico</footer>
+</body></html>

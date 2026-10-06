@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOCKUP v3 — Filtri ridisegnati</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--ink:#101014;--muted:#5b5b66;--line:#e7e8ec;--accent:#4f46e5;--soft:#eef0ff;--input:#f1f2f5}
+@media(prefers-color-scheme:dark){:root{--bg:#0e0e12;--ink:#f4f4f6;--muted:#a1a1b0;--line:#26262e;--accent:#818cf8;--soft:#1d1f38;--input:#1c1c22}}
+body{font-family:-apple-system,BlinkMacSystemFont,Inter,Segoe UI,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:24px 16px}
+.wrap{max-width:560px;margin:0 auto}
+h1{font-size:1.2rem;text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:20px}
+/* barra finta */
+.fakebar{display:flex;gap:10px;margin-bottom:16px}
+.fakebar .search{flex:1;background:var(--input);border:1px solid var(--line);border-radius:14px;padding:13px 16px;color:var(--muted);font-size:.92rem}
+.fbtn{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:13px 18px;font-weight:700;font-size:.92rem;color:var(--ink);cursor:pointer}
+.fbtn .n{background:var(--accent);color:#fff;font-size:.72rem;border-radius:999px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+/* sheet */
+.sheet{background:var(--bg);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.14)}
+.sheet-head{display:flex;align-items:center;justify-content:center;position:relative;padding:18px;border-bottom:1px solid var(--line)}
+.sheet-head b{font-size:1.05rem}
+.sheet-head button{position:absolute;right:14px;border:none;background:var(--input);width:32px;height:32px;border-radius:50%;font-size:.9rem;cursor:pointer;color:var(--ink)}
+.sec{padding:20px 22px;border-bottom:1px solid var(--line)}
+.sec:last-of-type{border-bottom:none}
+.sec h3{font-size:.95rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.sec .desc{font-size:.82rem;color:var(--muted);margin-bottom:12px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills button{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--ink);cursor:pointer}
+.pills button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.locrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.locrow button{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:10px 16px;font-size:.88rem;font-weight:600;color:var(--ink);cursor:pointer}
+.locrow button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.locrow input{flex:1;min-width:160px;border:1.5px solid var(--line);background:var(--input);border-radius:999px;padding:10px 16px;font-size:.88rem;color:var(--ink)}
+.sliderow{display:flex;align-items:center;gap:12px}
+.sliderow input{flex:1;accent-color:var(--accent)}
+.sliderow span{font-size:.88rem;color:var(--muted);font-weight:600;min-width:120px;text-align:right}
+.sheet-foot{display:flex;gap:10px;padding:18px 22px;background:var(--bg)}
+.sheet-foot .reset{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:14px;font-weight:700;color:var(--ink);cursor:pointer;font-size:.95rem}
+.sheet-foot .show{flex:2;border:none;background:var(--accent);border-radius:14px;padding:14px;font-weight:800;color:#fff;cursor:pointer;font-size:.95rem}
+.note{max-width:560px;margin:22px auto 0;color:var(--muted);font-size:.85rem;text-align:center;line-height:1.5}
+</style></head><body>
+<div class="wrap">
+<h1>Nuovi filtri</h1>
+<p class="sub">Un solo bottone, un pannello pulito a sezioni</p>
+<div class="fakebar">
+<div class="search">🔍 Cerca concerto, sagra, locale…</div>
+<button class="fbtn">Filtri <span class="n">2</span></button>
+</div>
+<div class="sheet">
+<div class="sheet-head"><b>Filtri</b><button>✕</button></div>
+<div class="sec">
+<h3>📅 Quando</h3>
+<div class="pills"><button class="on">Tutti</button><button>Oggi</button><button>Weekend</button><button>7 giorni</button><button>30 giorni</button></div>
+</div>
+<div class="sec">
+<h3>🎭 Cosa</h3>
+<div class="pills"><button class="on">Tutte</button><button>Musica</button><button>Festival</button><button>Stand-up</button><button>All'aperto</button><button>Sagre &amp; Food</button></div>
+</div>
+<div class="sec">
+<h3>💸 Prezzo</h3>
+<div class="pills"><button class="on">Tutti</button><button>Gratis</button><button>A pagamento</button></div>
+</div>
+<div class="sec">
+<h3>📍 Dove</h3>
+<p class="desc">Le distanze si calcolano da qui</p>
+<div class="locrow">
+<button class="on">📍 La mia posizione</button>
+<input placeholder="oppure digita un indirizzo…">
+</div>
+<div class="pills" style="margin-bottom:12px"><button class="on">Ovunque</button><button>Milano</button><button>Lombardia</button></div>
+<div class="sliderow"><input type="range" value="40"><span>entro 40 km da te</span></div>
+</div>
+<div class="sec">
+<h3>↕️ Ordina per</h3>
+<div class="pills"><button class="on">Data</button><button>Distanza</button></div>
+</div>
+<div class="sheet-foot">
+<button class="reset">Azzera</button>
+<button class="show">Mostra 128 eventi</button>
+</div>
+</div>
+<p class="note">Le scorciatoie rapide (Stasera, Weekend, Gratis…) restano fuori come adesso.<br>Il pannello si apre dal basso su telefono, al centro su desktop.</p>
+</div>
+</body></html>

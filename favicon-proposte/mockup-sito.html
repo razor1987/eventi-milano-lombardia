@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOCKUP — Eventi Milano Lombardia (restyle moderno)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Segoe UI,sans-serif;background:#0d0d0f;color:#f5f3ef;min-height:100vh}
+.hero{background:radial-gradient(1200px 500px at 50% -10%,#2a1503 0%,#0d0d0f 60%);padding:56px 20px 36px;text-align:center;border-bottom:1px solid #1f1f23}
+.hero .kicker{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#ff7a1a;border:1px solid #ff7a1a55;border-radius:999px;padding:6px 14px;margin-bottom:18px}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-bottom:12px}
+.hero h1 .neon{color:#ff7a1a}
+.hero p{color:#a1a1aa;font-size:1.02rem}
+.searchbar{max-width:620px;margin:26px auto 0;display:flex;background:#1a1a1e;border:1px solid #2c2c31;border-radius:16px;padding:6px;box-shadow:0 8px 32px rgba(255,122,26,.08)}
+.searchbar input{flex:1;background:transparent;border:none;color:#fff;font-size:1rem;padding:12px 16px;outline:none}
+.searchbar input::placeholder{color:#63636b}
+.searchbar button{background:#ff7a1a;border:none;color:#0d0d0f;font-weight:800;border-radius:12px;padding:12px 22px;font-size:.95rem;cursor:pointer}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:22px 0 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid #2c2c31;background:#161618;color:#d4d4d8;border-radius:999px;padding:10px 18px;font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip.on{background:#ff7a1a;border-color:#ff7a1a;color:#0d0d0f}
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 14px}
+.sec h2{font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.sec span{color:#71717a;font-size:.85rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding-bottom:10px}
+.card{background:#141416;border:1px solid #232326;border-radius:20px;overflow:hidden;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:#ff7a1a66}
+.card .top{display:flex;gap:14px;padding:18px 18px 0}
+.date{min-width:56px;height:64px;background:#1e1e22;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #2c2c31}
+.date b{font-size:1.35rem;color:#ff7a1a;line-height:1}
+.date small{font-size:.68rem;color:#a1a1aa;text-transform:uppercase;letter-spacing:.08em}
+.card h3{font-size:1.02rem;font-weight:700;line-height:1.3;padding-right:6px}
+.card .meta{padding:10px 18px 0;color:#a1a1aa;font-size:.85rem}
+.card .meta .dist{color:#ff7a1a;font-weight:700}
+.card .foot{display:flex;gap:8px;align-items:center;padding:14px 18px 18px}
+.pill{font-size:.72rem;font-weight:700;border-radius:999px;padding:5px 12px;letter-spacing:.02em}
+.pill.free{background:#123524;color:#4ade80}
+.pill.paid{background:#2a1a08;color:#ffb020}
+.pill.cat{background:#1e1e22;color:#d4d4d8;border:1px solid #2c2c31}
+.share{margin-left:auto;background:transparent;border:1px solid #2c2c31;color:#a1a1aa;border-radius:999px;width:34px;height:34px;font-size:1rem;cursor:pointer}
+.adslot{margin:26px 0;border:1.5px dashed #2c2c31;border-radius:16px;min-height:90px;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:#101012}
+footer{border-top:1px solid #1f1f23;margin-top:40px;padding:26px 20px;text-align:center;color:#52525b;font-size:.82rem}
+@media(max-width:640px){.hero{padding:40px 16px 28px}.cards{grid-template-columns:1fr}}
+</style></head><body>
+<div class="hero">
+<span class="kicker">Milano · Lombardia</span>
+<h1>Cosa facciamo <span class="neon">stasera?</span></h1>
+<p><b style="color:#fff">2.804 eventi</b> · aggiornato oggi · concerti, festival, stand-up, sagre</p>
+<div class="searchbar"><input placeholder="Cerca concerto, sagra, locale, città…"><button>Cerca</button></div>
+</div>
+<div class="wrap">
+<div class="chips">
+<button class="chip on">⚡ Stasera</button><button class="chip">🎉 Weekend</button><button class="chip">💸 Gratis</button><button class="chip">🎈 Party</button><button class="chip">✨ Inaugurazioni</button><button class="chip">📍 Vicino a me</button>
+</div>
+<div class="sec"><h2>In evidenza</h2><span>ordinati per data</span></div>
+<div class="cards">
+<div class="card"><div class="top"><div class="date"><b>16</b><small>ott</small></div><h3>No donne bianche etero (YellowSquare)</h3></div>
+<p class="meta">YellowSquare · Milano (MI) · <span class="dist">2 km da Milano</span></p>
+<div class="foot"><span class="pill free">Gratis</span><span class="pill cat">Stand-up</span><button class="share">↗</button></div></div>
+<div class="card"><div class="top"><div class="date"><b>10</b><small>ott</small></div><h3>Brunori Sas — Teatro degli Arcimboldi</h3></div>
+<p class="meta">Teatro degli Arcimboldi · Milano · <span class="dist">4 km da Milano</span></p>
+<div class="foot"><span class="pill paid">A pagamento</span><span class="pill cat">Musica</span><button class="share">↗</button></div></div>
+<div class="card"><div class="top"><div class="date"><b>31</b><small>ott</small></div><h3>Halloween Horror Fest</h3></div>
+<p class="meta">Magazzini Generali · Milano · <span class="dist">3 km da Milano</span></p>
+<div class="foot"><span class="pill paid">A pagamento</span><span class="pill cat">Festival</span><button class="share">↗</button></div></div>
+</div>
+<div class="adslot">Spazio pubblicitario</div>
+<div class="sec"><h2>Questo weekend</h2><span>12 eventi</span></div>
+<div class="cards">
+<div class="card"><div class="top"><div class="date"><b>11</b><small>ott</small></div><h3>Sagra della Polenta Taragna</h3></div>
+<p class="meta">Piazza Brembana (BG) · <span class="dist">78 km da Milano</span></p>
+<div class="foot"><span class="pill free">Gratis</span><span class="pill cat">Sagre & Food</span><button class="share">↗</button></div></div>
+<div class="card"><div class="top"><div class="date"><b>12</b><small>ott</small></div><h3>Open Mic @ Osteria Democratica</h3></div>
+<p class="meta">Osteria Democratica · Milano · <span class="dist">1 km da Milano</span></p>
+<div class="foot"><span class="pill free">Gratis</span><span class="pill cat">Stand-up</span><button class="share">↗</button></div></div>
+</div>
+</div>
+<footer>Eventi Milano Lombardia · mockup restyle — dimmi che ne pensi</footer>
+</body></html>

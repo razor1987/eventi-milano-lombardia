@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOCKUP v2 — Eventi Milano Lombardia (chiaro/scuro automatico)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --bg2:#f6f7f9; --card:#ffffff; --ink:#101014; --muted:#5b5b66;
+  --line:#e7e8ec; --accent:#4f46e5; --accent-ink:#ffffff; --accent-soft:#eef0ff;
+  --hero1:#eef0ff; --hero2:#ffffff; --input:#f1f2f5;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0e0e12; --bg2:#141419; --card:#16161c; --ink:#f4f4f6; --muted:#a1a1b0;
+    --line:#26262e; --accent:#818cf8; --accent-ink:#0e0e12; --accent-soft:#1c1e33;
+    --hero1:#191a2e; --hero2:#0e0e12; --input:#1c1c22;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Segoe UI,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.theme-label{position:sticky;top:0;z-index:10;text-align:center;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px;background:var(--accent);color:var(--accent-ink)}
+.hero{background:linear-gradient(180deg,var(--hero1),var(--hero2));padding:52px 20px 34px;text-align:center;border-bottom:1px solid var(--line)}
+.kicker{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);opacity:.9;border-radius:999px;padding:6px 14px;margin-bottom:16px}
+.hero h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-bottom:10px}
+.hero h1 .a{color:var(--accent)}
+.hero p{color:var(--muted);font-size:1rem}
+.searchbar{max-width:620px;margin:24px auto 0;display:flex;background:var(--input);border:1px solid var(--line);border-radius:16px;padding:6px}
+.searchbar input{flex:1;background:transparent;border:none;color:var(--ink);font-size:1rem;padding:12px 16px;outline:none}
+.searchbar input::placeholder{color:var(--muted)}
+.searchbar button{background:var(--accent);border:none;color:var(--accent-ink);font-weight:800;border-radius:12px;padding:12px 22px;font-size:.95rem;cursor:pointer}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:22px 0 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:10px 18px;font-size:.88rem;font-weight:600;white-space:nowrap;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 14px}
+.sec h2{font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.sec span{color:var(--muted);font-size:.85rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(79,70,229,.14)}
+.card .top{display:flex;gap:14px;padding:18px 18px 0}
+.date{min-width:56px;height:64px;background:var(--accent-soft);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.date b{font-size:1.35rem;color:var(--accent);line-height:1}
+.date small{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.card h3{font-size:1.02rem;font-weight:700;line-height:1.3;padding-right:6px}
+.card .meta{padding:10px 18px 0;color:var(--muted);font-size:.85rem}
+.card .meta .dist{color:var(--accent);font-weight:700}
+.card .foot{display:flex;gap:8px;align-items:center;padding:14px 18px 18px}
+.pill{font-size:.72rem;font-weight:700;border-radius:999px;padding:5px 12px}
+.pill.free{background:#dcfce7;color:#15803d}
+.pill.paid{background:#fef3c7;color:#b45309}
+@media(prefers-color-scheme:dark){.pill.free{background:#123524;color:#4ade80}.pill.paid{background:#2a1a08;color:#ffb020}}
+.pill.cat{background:var(--bg2);color:var(--muted);border:1px solid var(--line)}
+.share{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;width:34px;height:34px;font-size:1rem;cursor:pointer}
+.adslot{margin:26px 0;border:1.5px dashed var(--line);border-radius:16px;min-height:90px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2)}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:26px 20px;text-align:center;color:var(--muted);font-size:.82rem}
+.hint{text-align:center;color:var(--muted);font-size:.85rem;padding:14px 20px;max-width:640px;margin:0 auto}
+@media(max-width:640px){.hero{padding:38px 16px 26px}.cards{grid-template-columns:1fr}}
+</style></head><body>
+<div class="theme-label">Anteprima tema — cambia seguendo il tuo telefono (chiaro/scuro)</div>
+<p class="hint">Questo mockup usa <b>prefers-color-scheme</b>: se il tuo telefono è in modalità scura vedi il tema scuro, altrimenti quello chiaro. Prova a cambiare l'impostazione del telefono per vedere entrambi.</p>
+<div class="hero">
+<span class="kicker">Milano · Lombardia</span>
+<h1>Cosa facciamo <span class="a">stasera?</span></h1>
+<p><b>2.804 eventi</b> · aggiornato oggi · concerti, festival, stand-up, sagre</p>
+<div class="searchbar"><input placeholder="Cerca concerto, sagra, locale, città…"><button>Cerca</button></div>
+</div>
+<div class="wrap">
+<div class="chips">
+<button class="chip on">⚡ Stasera</button><button class="chip">🎉 Weekend</button><button class="chip">💸 Gratis</button><button class="chip">🎈 Party</button><button class="chip">✨ Inaugurazioni</button><button class="chip">📍 Vicino a me</button>
+</div>
+<div class="sec"><h2>In evidenza</h2><span>ordinati per data</span></div>
+<div class="cards">
+<div class="card"><div class="top"><div class="date"><b>16</b><small>ott</small></div><h3>No donne bianche etero (YellowSquare)</h3></div>
+<p class="meta">YellowSquare · Milano (MI) · <span class="dist">2 km da Milano</span></p>
+<div class="foot"><span class="pill free">Gratis</span><span class="pill cat">Stand-up</span><button class="share">↗</button></div></div>
+<div class="card"><div class="top"><div class="date"><b>10</b><small>ott</small></div><h3>Brunori Sas — Teatro degli Arcimboldi</h3></div>
+<p class="meta">Teatro degli Arcimboldi · Milano · <span class="dist">4 km da Milano</span></p>
+<div class="foot"><span class="pill paid">A pagamento</span><span class="pill cat">Musica</span><button class="share">↗</button></div></div>
+<div class="card"><div class="top"><div class="date"><b>31</b><small>ott</small></div><h3>Halloween Horror Fest</h3></div>
+<p class="meta">Magazzini Generali · Milano · <span class="dist">3 km da Milano</span></p>
+<div class="foot"><span class="pill paid">A pagamento</span><span class="pill cat">Festival</span><button class="share">↗</button></div></div>
+</div>
+<div class="adslot">Spazio pubblicitario</div>
+</div>
+<footer>Eventi Milano Lombardia · mockup v2 — tema automatico chiaro/scuro</footer>
+</body></html>
