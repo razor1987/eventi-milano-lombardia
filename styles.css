@@ -2,7 +2,7 @@
 :root{
   --bg:#ffffff; --bg2:#f6f7f9; --surface:#ffffff; --ink:#101014; --muted:#5b5b66;
   --line:#e7e8ec; --input:#f1f2f5;
-  --accent:#4f46e5; --accent-soft:#eef0ff; --accent-ink:#4338ca;
+  --accent:#2563eb; --accent-soft:#dbeafe; --accent-ink:#1d4ed8;
   --music:#4f46e5; --comedy:#d97706; --outdoor:#16a34a; --food:#e11d48; --fest:#7c3aed;
   --free-bg:#dcfce7; --free-tx:#15803d; --paid-bg:#fef3c7; --paid-tx:#b45309;
   --radius:20px;
@@ -12,7 +12,7 @@
   :root{
     --bg:#0e0e12; --bg2:#141419; --surface:#16161c; --ink:#f4f4f6; --muted:#a1a1b0;
     --line:#26262e; --input:#1c1c22;
-    --accent:#818cf8; --accent-soft:#1d1f38; --accent-ink:#a5b4fc;
+    --accent:#60a5fa; --accent-soft:#17233a; --accent-ink:#93c5fd;
     --music:#818cf8; --comedy:#fbbf24; --outdoor:#4ade80; --food:#fb7185; --fest:#a78bfa;
     --free-bg:#123524; --free-tx:#4ade80; --paid-bg:#2a1a08; --paid-tx:#ffb020;
   }
@@ -145,5 +145,5 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI"
 #modalRem.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .mrowbtns .sharebtn{margin-top:0;flex:1;justify-content:center;min-width:110px}
 #favcount{background:var(--accent);color:#fff;font-size:.68rem;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;padding:0 6px}
-.pill.rem{background:rgba(79,70,229,.12);color:var(--accent)}
+.pill.rem{background:var(--accent-soft);color:var(--accent)}
 .favcard{border-left:3px solid #e11d48}
