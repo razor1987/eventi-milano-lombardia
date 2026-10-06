@@ -145,7 +145,13 @@ function pricePill(e){const c=e.priceType==='free'?'free':e.priceType==='paid'?'
 function srcHTML(e){if(!e.sources||!e.sources.length)return'';
   return `<div class="src">Fonti: `+e.sources.map(s=>s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}${s.channel==='social'?' ·social':''}</a>`:`<span>${esc(s.name)}</span>`).join('')+`</div>`}
 function dateBadge(e){const d=parseD(e.startDate);if(!d)return'';
-  return `<span class="datebadge">${d.getDate()}<small>${MONTHS[d.getMonth()]}</small></span>`}
+  const e2=e.endDate&&e.endDate!==e.startDate?parseD(e.endDate):null;
+  let txt=`${d.getDate()}<small>${MONTHS[d.getMonth()]}</small>`;
+  if(e2){ // evento su più giorni: mostra il range
+    if(e2.getFullYear()===d.getFullYear()&&e2.getMonth()===d.getMonth())
+      txt=`${d.getDate()}–${e2.getDate()}<small>${MONTHS[d.getMonth()]}</small>`;
+    else txt=`${d.getDate()}<small>${MONTHS[d.getMonth()]}</small>–${e2.getDate()}<small>${MONTHS[e2.getMonth()]}</small>`}
+  return `<span class="datebadge">${txt}</span>`}
 function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
   const og=ongoing(e,t)?'<span class="ongoing">in corso</span>':'';
   const dt=distTxt(e);
@@ -161,20 +167,36 @@ function cardHTML(e){const t=new Date();t.setHours(12,0,0,0);
       ${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}
       ${srcHTML(e)}
     </div></article>`}
-function render(){const list=filtered();
-  document.getElementById('count').textContent=list.length+' eventi';
-  const pts=list.filter(e=>e.latitude&&e.longitude);
+let LAST_LIST=[],RENDERED=0;const BATCH=40;const OPEN=new Set();
+function render(){LAST_LIST=filtered();RENDERED=Math.min(BATCH,LAST_LIST.length);paintList();
+  document.getElementById('count').textContent=LAST_LIST.length+' eventi';
+  const pts=LAST_LIST.filter(e=>e.latitude&&e.longitude);
   const places=new Set(pts.map(e=>e.latitude.toFixed(4)+','+e.longitude.toFixed(4))).size;
   document.getElementById('mapcount').textContent=places+' luoghi · '+pts.length+' eventi';
+  updateFCount();renderMap(LAST_LIST)}
+function paintList(){
   // banner in-feed ogni 20 eventi: scorre con la lista
   const AD_EVERY=20;
   const parts=[];
-  list.forEach((e,i)=>{parts.push(cardHTML(e));
-    if((i+1)%AD_EVERY===0&&i+1<list.length)
-      parts.push('<div class="adslot" role="complementary" aria-label="Spazio pubblicitario"><span>Spazio pubblicitario</span></div>')});
-  document.getElementById('list').innerHTML=list.length?parts.join(''):'<div class="empty">Nessun evento con questi filtri.<br>Prova ad allargare la distanza o il periodo.</div>';
-  document.querySelectorAll('.card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
-  updateFCount();renderMap(list)}
+  for(let i=0;i<RENDERED;i++){parts.push(cardHTML(LAST_LIST[i]));
+    if((i+1)%AD_EVERY===0&&i+1<RENDERED)
+      parts.push('<div class="adslot" role="complementary" aria-label="Spazio pubblicitario"><span>Spazio pubblicitario</span></div>')}
+  if(RENDERED<LAST_LIST.length)
+    parts.push(`<button id="morebtn" onclick="moreEvents()">Mostra altri (${LAST_LIST.length-RENDERED} rimasti)</button>`);
+  const box=document.getElementById('list');
+  box.innerHTML=LAST_LIST.length?parts.join(''):'<div class="empty">Nessun evento con questi filtri.<br>Prova ad allargare la distanza o il periodo.</div>';
+  box.querySelectorAll('.card').forEach(c=>{const id=+c.dataset.id;
+    if(OPEN.has(id))c.classList.add('open');
+    c.addEventListener('click',()=>{c.classList.toggle('open');
+      c.classList.contains('open')?OPEN.add(id):OPEN.delete(id)})})}
+function moreEvents(){RENDERED=Math.min(RENDERED+BATCH,LAST_LIST.length);paintList()}
+// scroll infinito: carica altri eventi avvicinandosi al fondo
+let scrollTick=false;
+window.addEventListener('scroll',()=>{if(scrollTick)return;scrollTick=true;
+  requestAnimationFrame(()=>{scrollTick=false;
+    if(document.getElementById('listView').classList.contains('hidden'))return;
+    if(RENDERED>=LAST_LIST.length)return;
+    if(window.innerHeight+window.scrollY>document.documentElement.scrollHeight-900)moreEvents()})},{passive:true});
 function updateFCount(){let n=0;
   if(FILTERS.period!=='all')n++;if(FILTERS.cat!=='all')n++;if(FILTERS.price!=='all')n++;
   if(FILTERS.zone!=='all')n++;if(FILTERS.sort!=='date')n++;if(FILTERS.maxDist!=null)n++;
@@ -246,7 +268,8 @@ function bindFilters(){
       g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
       FILTERS[g.id.slice(1).toLowerCase()]=b.dataset.v;syncChips();render()}))});
   const q=document.getElementById('q'),qc=document.getElementById('qclear');
-  q.addEventListener('input',()=>{FILTERS.q=q.value;qc.classList.toggle('hidden',!q.value);render()});
+  let qT=null;
+  q.addEventListener('input',()=>{clearTimeout(qT);qT=setTimeout(()=>{FILTERS.q=q.value;qc.classList.toggle('hidden',!q.value);render()},220)});
   qc.addEventListener('click',()=>{q.value='';FILTERS.q='';qc.classList.add('hidden');render();q.focus()});
   const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
   md.addEventListener('input',()=>{const v=+md.value;FILTERS.maxDist=v>=150?null:v;
