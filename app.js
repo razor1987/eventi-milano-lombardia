@@ -234,15 +234,24 @@ async function shareEvent(id,ev){if(ev)ev.stopPropagation();
     const b=document.querySelectorAll(`[data-share="${id}"]`);
     b.forEach(x=>{const o=x.textContent;x.textContent='Copiato!';setTimeout(()=>x.textContent=o,1800)});
   }catch(_){prompt('Copia il link:',url)}}
+function ticketCTA(e){const s=(e.sources||[]).find(x=>x.channel==='ticketing'&&x.url);
+  if(!s)return '';
+  return `<a class="ticketbtn" href="${esc(s.url)}" target="_blank" rel="noopener">🎟 Biglietti su ${esc(s.name)}</a>`}
+function toggleDesc(btn){const p=btn.previousElementSibling;if(!p)return;
+  p.classList.toggle('clamp');
+  btn.textContent=p.classList.contains('clamp')?'Leggi tutto ▾':'Mostra meno ▴'}
 function openModal(id){const e=EVENTS.find(x=>x.id===id);if(!e)return;
   const dt=distTxt(e);
-  document.getElementById('mbody').innerHTML=`<h2>${esc(e.title)}</h2>
-    <span class="catpill">${CATL[catOf(e)]}</span>
+  const longDesc=e.details&&e.details.length>280;
+  document.getElementById('mbody').innerHTML=`<span class="catpill">${CATL[catOf(e)]}</span>
+    <h2>${esc(e.title)}</h2>
     <p class="meta"><b>${esc(e.dateLabel||'')}</b>${e.timeLabel?' · '+esc(e.timeLabel):''}</p>
     <p class="meta">${esc(e.venue||'')}${e.venue&&e.city?' · ':''}${esc(e.city||'')}${e.province?' ('+esc(e.province)+')':''}${dt?` · <span class="dist">${esc(dt)} ${refLabel()}</span>`:''}</p>
     ${e.kind?`<p class="meta">${esc(e.kind)}</p>`:''}<p>${pricePill(e)}</p>
-    ${e.details?`<p>${esc(e.details)}</p>`:''}${e.foodDetails?`<p><b>Food:</b> ${esc(e.foodDetails)}</p>`:''}
-    ${e.address?`<p class="meta">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
+    ${ticketCTA(e)}
+    ${e.details?`<div class="msec"><h3>Dettagli</h3><p class="mdesc${longDesc?' clamp':''}">${esc(e.details)}</p>${longDesc?`<button class="descbtn" onclick="toggleDesc(this)">Leggi tutto ▾</button>`:''}</div>`:''}
+    ${e.foodDetails?`<div class="msec"><h3>Food</h3><p class="mdesc">${esc(e.foodDetails)}</p></div>`:''}
+    ${e.address?`<p class="meta addr">${esc(e.address)}</p>`:''}${e.caveat?`<p class="cav">⚠ ${esc(e.caveat)}</p>`:''}${srcHTML(e)}
     <div class="mrowbtns"><button id="modalFav" class="mbtn ${isFav(e.id)?'on':''}" onclick="toggleFav(event,${e.id})">♡ Salva</button>
     ${isFav(e.id)?`<button id="modalRem" class="mbtn ${(FAVS.find(f=>f.id===e.id)||{}).remind?'on':''}" onclick="toggleRemind(event,${e.id})">🔔 Ricordamelo</button>`:''}
     <button class="sharebtn" data-share="${e.id}" onclick="shareEvent(${e.id},event)">↗ Condividi</button></div>`;
