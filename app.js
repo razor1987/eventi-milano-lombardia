@@ -280,7 +280,11 @@ function bindFilters(){
   document.querySelectorAll('.fgroup[id]').forEach(g=>{
     g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
       g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-      FILTERS[g.id.slice(1).toLowerCase()]=b.dataset.v;syncChips();render()}))});
+      FILTERS[g.id.slice(1).toLowerCase()]=b.dataset.v;
+      if(g.id==='fZone'&&b.dataset.v==='milano')resetDist();
+      syncChips();render()}))});
+  function resetDist(){const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
+    if(!md)return;FILTERS.maxDist=null;md.value=150;mdl.textContent='Qualsiasi'}
   const q=document.getElementById('q'),qc=document.getElementById('qclear');
   let qT=null;
   q.addEventListener('input',()=>{clearTimeout(qT);qT=setTimeout(()=>{FILTERS.q=q.value;qc.classList.toggle('hidden',!q.value);render()},220)});
