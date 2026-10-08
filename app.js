@@ -228,10 +228,10 @@ function renderMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));m
     m.bindPopup(`<div class="poplist">${items}</div>`);
     markers.push(m);m.addTo(map)});
   if(pts.length){try{map.fitBounds(L.latLngBounds(pts.map(e=>[e.latitude,e.longitude])).pad(0.12))}catch(_){}}}
-function eventUrl(id){return location.origin+location.pathname+'?evento='+encodeURIComponent(id)}
+function eventUrl(e){return e.slug?location.origin+'/evento/'+e.slug+'.html':location.origin+location.pathname+'?evento='+encodeURIComponent(e.id)}
 async function shareEvent(id,ev){if(ev)ev.stopPropagation();
   const e=EVENTS.find(x=>x.id===id);if(!e)return;
-  const url=eventUrl(id), title=e.title+' — Eventi Milano Lombardia';
+  const url=eventUrl(e), title=e.title+' — Eventi Milano Lombardia';
   const text=`${e.title}${e.dateLabel?' · '+e.dateLabel:''}${e.venue?' @ '+e.venue:''}`;
   if(navigator.share){try{await navigator.share({title,text,url});return}catch(_){/* annullato */}
   }
@@ -335,5 +335,5 @@ fetch('data/events.json').then(r=>r.json()).then(d=>{EVENTS=d.events;
   bindFilters();syncChips();updateFavUI();render();checkReminders();
   // Deep link: ?evento=ID apre direttamente la scheda evento
   try{const eid=new URLSearchParams(location.search).get('evento');
-    if(eid!=null){const id=Number(eid);if(Number.isFinite(id))openModal(id)}}catch(_){}
+    if(eid!=null){const ev=EVENTS.find(x=>String(x.id)===eid||x.slug===eid);if(ev)openModal(ev.id)}}catch(_){}
 }).catch(()=>{document.getElementById('list').innerHTML='<div class="empty">Dati non disponibili.</div>'});
