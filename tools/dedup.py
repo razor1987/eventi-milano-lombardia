@@ -3,11 +3,14 @@
 
 Euristica conservativa: fonde solo se stessa data di inizio + stesso luogo
 + titoli molto simili + endDate compatibili. Il luogo gestisce gli alias
-("Circolo Arci Bellezza" = "Arci Bellezza", troncamenti tra parentesi);
+("Circolo Arci Bellezza" = "Arci Bellezza", troncamenti tra parentesi) e
+ignora articoli/preposizioni ("Teatro degli Arcimboldi" = "Teatro Arcimboldi");
 i titoli usano ratio > 0.65, stesso headliner, inclusione token dell'headliner
 ("Ligabue" in "Luciano Ligabue"), o Jaccard >= 0.5 sui token (prende titoli
 con parole riordinate tipo "Stand up Comedy Cuccagna – open mic – ...").
-Non fonde mai due eventi con orari diversi (doppio spettacolo).
+Gli orari si confrontano sull'ora di inizio: "21:00" fonde con "21:00–23:00"
+e con "ore 21:00"/"h 21:00", ma non fonde mai due orari di inizio diversi
+(doppio spettacolo 19:00 vs 21:00).
 In caso di fusione unisce le fonti (dedup per URL), tiene i testi più lunghi
 e il prezzo noto se presente.
 
@@ -24,12 +27,20 @@ EVENTS = os.path.join(BASE, 'data', 'events.json')
 def norm(s):
     return re.sub(r'[^a-z0-9]+', ' ', (s or '').lower()).strip()
 
+ARTICOLI = {'il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una',
+            'di', 'a', 'da', 'in', 'con', 'su', 'per', 'tra', 'fra',
+            'del', 'dello', 'della', 'dei', 'degli', 'delle',
+            'al', 'allo', 'alla', 'ai', 'agli', 'alle',
+            'dal', 'dallo', 'dalla', 'dai', 'dagli', 'dalle',
+            'nel', 'nello', 'nella', 'nei', 'negli', 'nelle',
+            'sul', 'sullo', 'sulla', 'sui', 'sugli', 'sulle'}
+
 def canon_venue(e):
     v = e.get('venue') or ''
     v = re.sub(r'\(.*', '', v)          # tronca i parentetici ("L'Ambrata (Lambrate...")
-    v = norm(v)
-    v = re.sub(r'^circolo\s+', '', v)   # "circolo arci bellezza" -> "arci bellezza"
-    return v or norm(e.get('city'))
+    v = re.sub(r'^circolo\s+', '', norm(v))  # "circolo arci bellezza" -> "arci bellezza"
+    toks = [t for t in v.split() if t not in ARTICOLI and len(t) > 1]
+    return ' '.join(toks) or norm(e.get('city'))
 
 def same_venue(a, b):
     va, vb = canon_venue(a), canon_venue(b)
@@ -60,10 +71,22 @@ def endok(a, b):
     eb = b.get('endDate') or b.get('startDate')
     return ea == eb
 
+def normtime(t):
+    t = (t or '').strip().lower()
+    t = re.sub(r'^ore\s+', '', t)          # "ore 21:00" -> "21:00"
+    t = re.sub(r'^h[\s.]+', '', t)         # "h 21:00" / "h. 21:00" -> "21:00"
+    t = t.replace('\u2013', '-').replace('\u2014', '-').replace('\u2212', '-')
+    t = re.sub(r'\s+', '', t)              # "21:00 - 23:00" -> "21:00-23:00"
+    return t
+
+def starttime(t):
+    # confronta solo l'orario di inizio: "21:00" == "21:00-23:00"
+    return normtime(t).split('-', 1)[0].strip()
+
 def timeok(a, b):
-    ta = (a.get('timeLabel') or '').strip()
-    tb = (b.get('timeLabel') or '').strip()
-    # due orari diversi => probabilmente doppio spettacolo, non fondere
+    ta = starttime(a.get('timeLabel'))
+    tb = starttime(b.get('timeLabel'))
+    # due orari di inizio diversi => probabilmente doppio spettacolo, non fondere
     return not (ta and tb and ta != tb)
 
 def similar(a, b):

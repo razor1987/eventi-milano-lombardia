@@ -128,7 +128,8 @@ function filtered(){const q=FILTERS.q.toLowerCase();
     if(FILTERS.cat!=='all'&&!matchCat(e))return false;
     if(FILTERS.price==='free'&&e.priceType!=='free')return false;
     if(FILTERS.price==='paid'&&e.priceType!=='paid')return false;
-    if(FILTERS.zone!=='all'&&e.area!==FILTERS.zone)return false;
+    if(FILTERS.zone==='milano'){if(e.city!=='Milano')return false}
+    else if(FILTERS.zone==='lombardia'&&e.area==='milano'&&e.city==='Milano')return false;
     if(!matchOnly(e))return false;
     if(FILTERS.maxDist!=null){const d=distKm(e);if(d==null||d>FILTERS.maxDist)return false}
     if(q){const h=(e.title+' '+(e.kind||'')+' '+(e.venue||'')+' '+e.city+' '+(e.details||'')).toLowerCase();if(!h.includes(q))return false}
@@ -281,17 +282,19 @@ function bindFilters(){
     g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
       g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
       FILTERS[g.id.slice(1).toLowerCase()]=b.dataset.v;
-      if(g.id==='fZone'&&b.dataset.v==='milano')resetDist();
+      if(g.id==='fZone'){if(b.dataset.v==='milano')resetDist();
+        else{const zmd=document.getElementById('maxDist'),zml=document.getElementById('maxDistLabel');
+          if(zmd&&+zmd.value===0){FILTERS.maxDist=null;zml.textContent='Qualsiasi'}}}
       syncChips();render()}))});
   function resetDist(){const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
-    if(!md)return;FILTERS.maxDist=null;md.value=150;mdl.textContent='Qualsiasi'}
+    if(!md)return;FILTERS.maxDist=null;md.value=0;mdl.textContent='solo Milano'}
   const q=document.getElementById('q'),qc=document.getElementById('qclear');
   let qT=null;
   q.addEventListener('input',()=>{clearTimeout(qT);qT=setTimeout(()=>{FILTERS.q=q.value;qc.classList.toggle('hidden',!q.value);render()},220)});
   qc.addEventListener('click',()=>{q.value='';FILTERS.q='';qc.classList.add('hidden');render();q.focus()});
   const md=document.getElementById('maxDist'),mdl=document.getElementById('maxDistLabel');
-  md.addEventListener('input',()=>{const v=+md.value;FILTERS.maxDist=v>=150?null:v;
-    mdl.textContent=v>=150?'Qualsiasi':'entro '+v+' km '+refLabel();syncChips();render()});
+  md.addEventListener('input',()=>{const v=+md.value;FILTERS.maxDist=(v>=150||v===0)?null:v;
+    mdl.textContent=v>=150?'Qualsiasi':(v===0?(FILTERS.zone==='milano'?'solo Milano':'Qualsiasi'):'entro '+v+' km '+refLabel());syncChips();render()});
   document.getElementById('useMyPos').addEventListener('click',useMyPosition);
   const ca=document.getElementById('customAddr');
   ca.addEventListener('keydown',e=>{if(e.key==='Enter')setCustomAddress(ca.value)});
