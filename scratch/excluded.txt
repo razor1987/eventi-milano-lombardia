@@ -1,0 +1,12 @@
+domeniche-ville-palazzi-e-castelli-10 -> OUT (starts 03/05/2026)
+vasilij-grossman-la-forza-dellumano-nelluomo -> OUT (starts 03/10/2026)
+domeniche-dautunno -> OUT (starts 27/09/2026)
+la-canonica-di-san-salvatore-si-racconta -> OUT (starts 03/10/2026)
+la-canonica-di-san-salvatore-si-racconta -> OUT (starts 03/10/2026)
+tavola-dargento -> OUT (starts 25/09/2026)
+gibo-gibellini -> OUT (starts 03/10/2026)
+books-key -> OUT (starts 26/09/2026)
+il-cammino-del-vulcano-un-nuovo-itinerario-toscana # triage-out-of-scope (Dec/2027/out-of-Lombardy segment)
+mercatini-di-natale-49 # triage-out-of-scope (Dec/2027/out-of-Lombardy segment)
+pink-floyd-immersion-beyond-moon-chapter-1-tour-20262027 # triage year out of scope
+desert-films-james-franco -> OUT (starts 08/10/2026, before scope)
